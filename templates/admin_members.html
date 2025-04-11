@@ -1,0 +1,39 @@
+<!-- templates/admin_members.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>회원 관리</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h2>회원 목록</h2>
+
+    <table border="1">
+        <tr>
+            <th>이름</th><th>전화번호</th><th>수정</th>
+        </tr>
+        {% for member in members %}
+        <tr>
+            <form action="/admin/update_member/{{ member.id }}" method="POST">
+                <td><input type="text" name="name" value="{{ member.name }}"></td>
+                <td><input type="text" name="phone" value="{{ member.phone }}"></td>
+                <td><button type="submit">수정</button></td>
+            </form>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h3>회원 추가</h3>
+    <form method="POST">
+        이름: <input type="text" name="name" required>
+        전화번호: <input type="text" name="phone" required>
+        <button type="submit">추가</button>
+    </form>
+
+    <br>
+    <a href="/">
+        <button>← 메인으로 돌아가기</button>
+    </a>
+</body>
+</html>

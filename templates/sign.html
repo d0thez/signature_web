@@ -1,0 +1,17 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>서명하기</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h2>{{ name }} 님, 서명해주세요</h2>
+    <canvas id="signature-pad" width="400" height="200" style="border:1px solid black;"></canvas><br>
+    <button onclick="clearPad()">지우기</button>
+    <button onclick="submitSignature()">제출</button>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
