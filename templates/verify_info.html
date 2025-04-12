@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>정보 확인</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        p {
+            font-size: 16px;
+            color: #555;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        form {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            font-size: 16px;
+            border: 1.5px solid #ccc;
+            border-radius: 8px;
+            background-color: #fafafa;
+            color: #333;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #7a57d1;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #8d92f2;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #6b73e0;
+        }
+
+        a {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        a button {
+            background-color: #888;
+        }
+
+        a button:hover {
+            background-color: #666;
+        }
+
+        @media (max-width: 480px) {
+            h2 {
+                font-size: 20px;
+            }
+
+            input, button {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h2>{{ user[1] }}님의 정보 확인</h2>
+    <p>내용 확인 후 오류가 있으면 수정해주세요!</p>
+
+    <form action="/confirm_info" method="POST">
+        <input type="hidden" name="id" value="{{ user[0] }}">
+        <input type="hidden" name="phone_last4" value="{{ user[6] }}" required>
+
+        <label for="name">이름</label>
+        <input type="text" id="name" name="name" value="{{ user[1] }}" required><br>
+
+        <label for="department">학과</label>
+        <input type="text" id="department" name="department" value="{{ user[2] }}" required><br>
+
+        <label for="grade">학년</label>
+        <input type="tel" id="grade" name="grade" value="{{ user[3] }}" required><br>
+
+        <label for="student_id">학번</label>
+        <input type="tel" id="student_id" name="student_id" value="{{ user[4] }}" required><br>
+
+        <label for="phone">전화번호</label>
+        <input type="tel" id="phone" name="phone" value="{{ user[5] }}" required><br>
+
+        <button type="submit">확인 후 서명하기</button>
+    </form>
+
+    <a href="/">
+        <button>← 메인으로 돌아가기</button>
+    </a>
+
+</body>
+</html>

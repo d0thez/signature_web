@@ -1,5 +1,5 @@
 
-from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, flash
 import sqlite3
 import os
 from datetime import datetime
@@ -29,10 +29,10 @@ def verify():
     conn.close()
 
     if user:
-        if user[3] == 1:
+        if user[7] == 1:
             return render_template('index.html', error='이미 서명하셨습니다.')
-        session['user'] = {'name': name, 'phone_last4': phone_last4}
-        return redirect('/sign')
+        session['user_id'] = user[0]
+        return render_template('verify_info.html', user=user)
     else:
         return render_template('index.html', error='회원 정보가 없습니다.')
 
@@ -95,33 +95,93 @@ def download_signature(filename):
         return redirect('/')
     return send_from_directory('signatures', filename, as_attachment=True)
 
-@app.route('/admin/members', methods=['GET', 'POST'])
-def manage_members():
-    if request.method == 'POST':
-        name = request.form['name']
-        phone = request.form['phone']
-        db = get_db()
-        db.execute('INSERT INTO users (name, phone, signed) VALUES (?, ?, 0)', (name, phone))
-        db.commit()
-        return redirect('/admin/members')
-
-    db = get_db()
-    members = db.execute('SELECT * FROM users').fetchall()
-    return render_template('admin_members.html', members=members)
-
-@app.route('/admin/update_member/<int:user_id>', methods=['POST'])
-def update_member(user_id):
-    name = request.form['name']
-    phone = request.form['phone']
-    db = get_db()
-    db.execute('UPDATE users SET name = ?, phone = ? WHERE id = ?', (name, phone, user_id))
-    db.commit()
-    return redirect('/admin/members')
 
 @app.route('/thank_you')
 def thank_you():
     return render_template('thank_you.html')
 
 
+@app.route('/admin/add_user', methods=['POST'])
+def add_user():
+    name = request.form['name']
+    department = request.form['department']
+    grade = request.form['grade']
+    student_id = request.form['student_id']
+    phone = request.form['phone']
+    phone_last4 = request.form['phone_last4']
+    
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute('INSERT INTO users (name, department, grade, student_id, phone, phone_last4, has_signed) VALUES (?, ?, ?, ?, ?, ?, ?)', 
+              (name, department, grade, student_id, phone, phone_last4, 0))  # 서명 여부는 기본값 0 (미완료)
+    conn.commit()
+    conn.close()
+
+    return redirect('/admin_panel')  # 관리자 페이지로 리다이렉트
+
+@app.route('/admin/delete_user/<int:user_id>', methods=['POST'])
+def delete_user(user_id):
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute('DELETE FROM users WHERE id=?', (user_id,))
+    conn.commit()
+    conn.close()
+
+    return redirect('/admin_panel')  # 관리자 페이지로 리다이렉트
+
+
+@app.route('/confirm_info', methods=['POST'])
+def confirm_info():
+    user_id = request.form['id']
+    name = request.form['name']
+    department = request.form['department']
+    grade = request.form['grade']
+    student_id = request.form['student_id']
+    phone = request.form['phone']
+    phone_last4 = request.form['phone_last4']
+
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    # " , phone_last4=?"" 지움
+    c.execute('''
+        UPDATE users SET name=?, department=?, grade=?, student_id=?, phone=?, phone_last4=?
+        WHERE id=?
+    ''', (name, department, grade, student_id, phone, phone_last4, user_id))
+    conn.commit()
+    conn.close()
+
+    session['user'] = {
+        'id': user_id,
+        'name': name,
+        'phone_last4': phone_last4
+    }
+    return redirect('/sign')
+
+@app.route('/admin/update_user', methods=['POST'])
+def update_user():
+    user_id = request.form['id']
+    name = request.form['name']
+    department = request.form['department']
+    grade = request.form['grade']
+    student_id = request.form['student_id']
+    phone = request.form['phone']
+    phone_last4 = request.form['phone_last4']
+
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute('''
+        UPDATE users
+        SET name=?, department=?, grade=?, student_id=?, phone=?, phone_last4=?
+        WHERE id=?
+    ''', (name, department, grade, student_id, phone, phone_last4, user_id))
+    conn.commit()
+    conn.close()
+
+    flash(f"{name}님의 정보가 수정되었습니다.")
+    return redirect('/admin_panel')
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
+
+
+#시작하기 python app.py

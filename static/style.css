@@ -1,16 +1,53 @@
 
-body {
-    text-align: center;
-    font-family: Arial, sans-serif;
-    margin-top: 50px;
+
+input {
+    /*padding: 10px;
+    margin: 10px
+    
+    /*width: 96vw;
+    max-width: 800px;
+    
+    display: flex;*/
+
+    width: 30vw;
+
+    margin-bottom: 12px;
+    border-radius: 12px;
+    background-color: white; /* 버튼 배경색 */
+    color: black; /* 텍스트 색상 */
+    font-size: 20px; /* 기본 폰트 크기 */
+
 }
-input, button {
-    padding: 10px;
+
+button {
+    /*padding: 10px;
     margin: 10px;
+    width: 96vw; 
+    height: 7vh;
+    max-width: 800px; */
+    
+    margin-bottom: 12px;
+    border-radius: 12px;
+    background-color: #1E1E1E; /* 버튼 배경색 */
+    color: #F5F5F5; /* 텍스트 색상 */
+    font-size: 20px; /* 기본 폰트 크기 */
+    font-family: "Pretendard-Bold";
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    border: none;
 }
+
 table {
     border-collapse: collapse;
 }
+
 th, td {
     padding: 8px 12px;
 }
+
+canvas {
+    touch-action: none; /* 터치 스크롤 방지 */
+    -ms-touch-action: none;
+}
+

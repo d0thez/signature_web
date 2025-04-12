@@ -1,29 +1,68 @@
-
 const canvas = document.getElementById('signature-pad');
 const ctx = canvas.getContext('2d');
 let drawing = false;
 
-canvas.addEventListener('mousedown', () => drawing = true);
-canvas.addEventListener('mouseup', () => drawing = false);
-canvas.addEventListener('mouseout', () => drawing = false);
+// 마우스 이벤트
+canvas.addEventListener('mousedown', (e) => {
+    drawing = true;
+    draw(e);
+});
+canvas.addEventListener('mouseup', () => {
+    drawing = false;
+    ctx.beginPath();
+});
+canvas.addEventListener('mouseout', () => {
+    drawing = false;
+    ctx.beginPath();
+});
 canvas.addEventListener('mousemove', draw);
 
-function draw(e) {
+// 터치 이벤트
+canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    drawing = true;
+    const touch = e.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+});
+canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
     if (!drawing) return;
+    const touch = e.touches[0];
+    const rect = canvas.getBoundingClientRect();
     ctx.lineWidth = 2;
     ctx.lineCap = 'round';
     ctx.strokeStyle = '#000';
-    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
     ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(e.offsetX, e.offsetY);
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+});
+canvas.addEventListener('touchend', () => {
+    drawing = false;
+    ctx.beginPath();
+});
+
+// 그리기 함수 (PC용)
+function draw(e) {
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#000';
+    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
 }
 
+// 지우기
 function clearPad() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.beginPath();
 }
 
+// 제출
 function submitSignature() {
     const dataURL = canvas.toDataURL();
     fetch('/submit_signature', {
@@ -31,14 +70,13 @@ function submitSignature() {
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: 'signature=' + encodeURIComponent(dataURL)
     })
-    
     .then(response => {
         if (response.redirected) {
-          window.location.href = response.url; // 페이지를 직접 이동시켜줌
+            window.location.href = response.url;
         } else {
-          return response.text().then(data => {
-            alert(data); // 에러 메시지 등은 그대로 띄움
-          });
+            return response.text().then(data => {
+                alert(data);
+            });
         }
-      });
+    });
 }

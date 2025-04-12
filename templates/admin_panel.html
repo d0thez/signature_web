@@ -1,34 +1,217 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <title>관리자 패널</title>
     <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h2, h3 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        form {
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-top: 12px;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1.5px solid #ccc;
+            border-radius: 8px;
+            background-color: #fafafa;
+            color: #333;
+            transition: border-color 0.3s ease;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #8d92f2;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #333;
+        }
+
+        .delete-button {
+            background-color: #ff5e5e;
+            color: white;
+            padding: 6px 12px;
+            font-size: 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .delete-button:hover {
+            background-color: #e74c3c;
+        }
+
+        .edit-button {
+            background-color: #5e9cff;
+            color: white;
+            padding: 6px 12px;
+            font-size: 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .edit-button:hover {
+            background-color: #2f74d6;
+        }
+
+        table {
+            width: 100%;
+            max-width: 1000px;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #e0e0e0;
+        }
+
+        a button {
+            background-color: #888;
+            margin-top: 30px;
+        }
+
+        a button:hover {
+            background-color: #666;
+        }
+    </style>
+    <script>
+        function editUser(userId, name, department, grade, studentId, phone, phoneLast4) {
+            document.getElementById('name').value = name;
+            document.getElementById('department').value = department;
+            document.getElementById('grade').value = grade;
+            document.getElementById('student_id').value = studentId;
+            document.getElementById('phone').value = phone;
+            document.getElementById('phone_last4').value = phoneLast4;
+
+            document.getElementById('user_form').action = '/admin/update_user';
+            document.getElementById('submit_button').innerText = '수정하기';
+
+            let existingHidden = document.querySelector('input[name="id"]');
+            if (existingHidden) existingHidden.remove();
+
+            let hiddenIdField = document.createElement('input');
+            hiddenIdField.type = 'hidden';
+            hiddenIdField.name = 'id';
+            hiddenIdField.value = userId;
+            document.getElementById('user_form').appendChild(hiddenIdField);
+        }
+    </script>
 </head>
 <body>
-    <h2>회원 목록 및 서명 확인</h2>
-    <table border="1" style="margin: auto;">
+    <h2>관리자 패널</h2>
+
+    <h3>회원 정보 수정</h3>
+    <form id="user_form" action="/admin/add_user" method="POST">
+        <label for="name">이름</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="department">학과</label>
+        <input type="text" id="department" name="department" required>
+
+        <label for="grade">학년</label>
+        <input type="tel" id="grade" name="grade" required>
+
+        <label for="student_id">학번</label>
+        <input type="tel" id="student_id" name="student_id" required>
+
+        <label for="phone">전화번호</label>
+        <input type="tel" id="phone" name="phone" required>
+
+        <label for="phone_last4">전화번호 뒷 네자리 (암호)</label>
+        <input type="tel" id="phone_last4" name="phone_last4" maxlength="4" required>
+
+        <button type="submit" id="submit_button">회원 추가</button>
+    </form>
+
+    <hr style="width: 100%; max-width: 1000px;">
+
+    <table>
         <tr>
             <th>이름</th>
-            <th>전화번호 뒷자리</th>
+            <th>학과</th>
+            <th>학년</th>
+            <th>학번</th>
+            <th>전화번호</th>
+            <th>암호</th>
             <th>서명 여부</th>
             <th>서명 다운로드</th>
+            <th>수정</th>
+            <th>삭제</th>
         </tr>
         {% for user in users %}
         <tr>
             <td>{{ user[1] }}</td>
             <td>{{ user[2] }}</td>
-            <td>{{ '완료' if user[3] == 1 else '미완료' }}</td>
+            <td>{{ user[3] }}</td>
+            <td>{{ user[4] }}</td>
+            <td>{{ user[5] }}</td>
+            <td>{{ user[6] }}</td>
+            <td>{{ '✅' if user[7] == 1 else '❌' }}</td>
             <td>
-                {% if user[3] == 1 %}
+                {% if user[7] == 1 %}
                 <a href="/download/{{ user[1] }}.png">다운로드</a>
                 {% else %}
                 -
                 {% endif %}
             </td>
+            <td>
+                <button type="button" class="edit-button" onclick="editUser('{{ user[0] }}', '{{ user[1] }}', '{{ user[2] }}', '{{ user[3] }}', '{{ user[4] }}', '{{ user[5] }}', '{{ user[6] }}')">편집</button>
+            </td>
+            <td>
+                <form action="/admin/delete_user/{{ user[0] }}" method="POST" style="margin: 0;">
+                    <button type="submit" class="delete-button">삭제</button>
+                </form>
+            </td>
         </tr>
         {% endfor %}
     </table>
+
+    <a href="/"><button>메인 페이지로</button></a>
 </body>
 </html>

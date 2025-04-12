@@ -1,14 +1,79 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>감사합니다!</title>
     <link rel="stylesheet" href="/static/style.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', sans-serif;
+            background-color: #f4f4f9;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #8d92f2;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #6b73e0;
+        }
+
+        a {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 480px) {
+            h2 {
+                font-size: 20px;
+            }
+
+            button {
+                font-size: 14px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h2>서명해주셔서 감사합니다~~ 😊</h2>
-    <a href="/"><button>메인화면으로 돌아가기</button></a>
-    
+
+    <h2>2025학년도 1학기<br>
+        뉴맨 회원 명부에 서명되었습니다!<br>
+        서명해주셔서 감사합니다~~ 😊</h2>
+
+    <p>언제나 당신의 곁에서, NEWMAN</p>
+    <a href="/">
+        <button>메인화면으로 돌아가기</button>
+    </a>
+
 </body>
 </html>

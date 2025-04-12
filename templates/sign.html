@@ -1,14 +1,85 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>서명하기</title>
     <link rel="stylesheet" href="/static/style.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', sans-serif;
+            background-color: #f4f4f9;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        canvas {
+            border: 2px solid #7A57D1;
+            touch-action: none;
+            width: 90vw;
+            max-width: 400px;
+            height: 200px;
+            border-radius: 12px;
+            background-color: #f7f7f7;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #8d92f2;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #6b73e0;
+        }
+
+        @media (max-width: 480px) {
+            h2 {
+                font-size: 20px;
+            }
+
+            button {
+                font-size: 14px;
+            }
+
+            canvas {
+                width: 80vw;
+                max-width: 350px;
+            }
+        }
+    </style>
 </head>
 <body>
+
     <h2>{{ name }} 님, 서명해주세요</h2>
-    <canvas id="signature-pad" width="400" height="200" style="border:1px solid black;"></canvas><br>
+    <canvas id="signature-pad" width="400" height="200"></canvas><br>
     <button onclick="clearPad()">지우기</button>
     <button onclick="submitSignature()">제출</button>
 

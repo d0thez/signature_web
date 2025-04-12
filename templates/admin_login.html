@@ -1,19 +1,123 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>관리자 로그인</title>
     <link rel="stylesheet" href="/static/style.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            overflow: hidden;          /* 스크롤 막기 */
+            height: 100%;              /* 전체 화면 사용 */
+        }
+
+        body {
+            margin: 0;
+            padding: 24px;
+            font-family: 'Pretendard', sans-serif;
+            background-color: #ffffff;
+            color: #111;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 32px;
+        }
+
+        form {
+            width: 100%;
+            max-width: 360px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input[type="password"] {
+            width: 70%;
+            height: 48px;
+            padding: 0 14px;
+            font-size: 16px;
+            border: 1.5px solid #ccc;
+            border-radius: 10px;
+            background-color: #fafafa;
+            color: #333;
+            margin-bottom: 16px;
+            transition: border-color 0.2s;
+        }
+
+        input[type="password"]:focus {
+            border-color: #7a57d1;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            max-width: 300px;
+            height: 48px;
+            margin-bottom: 14px;
+            border: none;
+            border-radius: 10px;
+            background-color: #1E1E1E;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #333;
+        }
+
+        a button {
+            background-color: #888;
+        }
+
+        a button:hover {
+            background-color: #666;
+        }
+
+        p {
+            color: red;
+            text-align: center;
+        }
+
+        @media (max-width: 480px) {
+            h2 {
+                font-size: 20px;
+            }
+
+            input, button {
+                font-size: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
+
     <h2>관리자 로그인</h2>
+
     <form action="/admin_login" method="POST">
-        <input type="password" name="password" placeholder="비밀번호 입력"><br>
-        <button type="submit">로그인</button>
+        <input type="password" name="password" placeholder="비밀번호 입력" required>
+        <button type="submit">로그인</button><br>
     </form>
+
+    <a href="/"><button>← 메인으로 돌아가기</button></a>
+
     {% if error %}
-        <p style="color: red;">{{ error }}</p>
+        <p>{{ error }}</p>
     {% endif %}
+
 </body>
 </html>
+
