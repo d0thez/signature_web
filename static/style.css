@@ -1,53 +1,450 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
+:root {
+    /* Newman Logo Color Palette */
+    --primary: #3155E7;
+    --primary-hover: #2443C7;
+    --primary-light: #EAF0FF;
+
+    --blue: #2563EB;
+    --cyan: #18B9E8;
+    --purple: #6336E8;
+    --navy: #101A43;
+
+    /* UI Colors */
+    --bg-color: #F6F8FC;
+    --surface: #FFFFFF;
+
+    --text-main: #101A43;
+    --text-muted: #667085;
+
+    --border: #E4E9F2;
+    --input-bg: #F9FAFC;
+
+    --error: #EF5B6A;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family:
+        'Pretendard',
+        -apple-system,
+        BlinkMacSystemFont,
+        system-ui,
+        Roboto,
+        sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 100vh;
+    padding: 20px;
+
+    overflow-x: hidden;
+}
+
+/* =========================
+   메인 카드
+========================= */
+
+.container {
+    background: var(--surface);
+
+    width: 100%;
+    max-width: 420px;
+
+    padding: 40px 30px;
+
+    border-radius: 24px;
+
+    box-shadow:
+        0 12px 40px rgba(16, 26, 67, 0.06),
+        0 2px 8px rgba(16, 26, 67, 0.03);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* =========================
+   로고
+========================= */
+
+.logo { 
+    width: 120px; 
+    height: 120px; 
+    border-radius: 50%; 
+    object-fit: cover; 
+    margin-bottom: 24px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
+}
+
+/* =========================
+   타이틀
+========================= */
+
+h2 {
+    font-size: 24px;
+    font-weight: 700;
+
+    text-align: center;
+    line-height: 1.4;
+
+    margin-bottom: 24px;
+
+    color: var(--navy);
+
+    letter-spacing: -0.5px;
+}
+
+p.desc {
+    font-size: 15px;
+
+    color: var(--text-muted);
+
+    text-align: center;
+
+    margin-bottom: 30px;
+
+    line-height: 1.6;
+}
+
+p.error-msg {
+    color: var(--error);
+
+    font-size: 14px;
+
+    margin-bottom: 16px;
+
+    text-align: center;
+
+    font-weight: 500;
+}
+
+.error-msg {
+    width: 100%;
+
+    margin-bottom: 18px;
+    padding: 13px 16px;
+
+    border-radius: 12px;
+
+    background: #FFF5F5;
+    color: #E05260;
+
+    font-size: 14px;
+    line-height: 1.5;
+
+    text-align: center;
+    font-weight: 600;
+}
+
+/* =========================
+   폼
+========================= */
+
+form {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group {
+    width: 100%;
+
+    margin-bottom: 16px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group label {
+    font-size: 14px;
+
+    font-weight: 600;
+
+    margin-bottom: 8px;
+
+    color: var(--navy);
+
+    letter-spacing: -0.2px;
+}
+
+/* =========================
+   입력창
+========================= */
 
 input {
-    /*padding: 10px;
-    margin: 10px
-    
-    /*width: 96vw;
-    max-width: 800px;
-    
-    display: flex;*/
+    width: 100%;
+    height: 52px;
 
-    width: 30vw;
+    padding: 0 16px;
 
-    margin-bottom: 12px;
+    font-size: 16px;
+
+    border: 1.5px solid var(--border);
+
     border-radius: 12px;
-    background-color: white; /* 버튼 배경색 */
-    color: black; /* 텍스트 색상 */
-    font-size: 20px; /* 기본 폰트 크기 */
 
+    background-color: var(--input-bg);
+
+    color: var(--text-main);
+
+    transition:
+        border-color 0.2s ease,
+        background-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
+
+input::placeholder {
+    color: #98A2B3;
+}
+
+input:focus {
+    border-color: var(--primary);
+
+    background-color: var(--surface);
+
+    outline: none;
+
+    box-shadow:
+        0 0 0 3px rgba(49, 85, 231, 0.10);
+}
+
+/* =========================
+   버튼
+========================= */
 
 button {
-    /*padding: 10px;
-    margin: 10px;
-    width: 96vw; 
-    height: 7vh;
-    max-width: 800px; */
-    
-    margin-bottom: 12px;
+    width: 100%;
+    height: 52px;
+
+    margin-top: 8px;
+
+    border: none;
     border-radius: 12px;
-    background-color: #1E1E1E; /* 버튼 배경색 */
-    color: #F5F5F5; /* 텍스트 색상 */
-    font-size: 20px; /* 기본 폰트 크기 */
-    font-family: "Pretendard-Bold";
-    text-align: center;
+
+    /* 로고의 블루 → 퍼플 느낌 */
+    background: linear-gradient(
+        135deg,
+        #2563EB 0%,
+        #3155E7 50%,
+        #6336E8 100%
+    );
+
+    color: white;
+
+    font-size: 16px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease;
+
+    display: flex;
     justify-content: center;
     align-items: center;
-    border: none;
+
+    box-shadow:
+        0 6px 16px rgba(49, 85, 231, 0.20);
 }
 
-table {
-    border-collapse: collapse;
+button:hover {
+    background: linear-gradient(
+        135deg,
+        #1F55D8 0%,
+        #2949D1 50%,
+        #5730D2 100%
+    );
+
+    box-shadow:
+        0 8px 20px rgba(49, 85, 231, 0.26);
+
+    transform: translateY(-1px);
 }
 
-th, td {
-    padding: 8px 12px;
+button:active {
+    transform: translateY(0);
+
+    box-shadow:
+        0 4px 10px rgba(49, 85, 231, 0.18);
+}
+
+/* 보조 버튼 */
+
+button.btn-secondary {
+    background: #EEF2F7;
+
+    color: #475467;
+
+    margin-top: 16px;
+
+    box-shadow: none;
+}
+
+button.btn-secondary:hover {
+    background: #E4E9F1;
+
+    color: var(--navy);
+
+    box-shadow: none;
+
+    transform: none;
+}
+
+/* 삭제 / 위험 버튼 */
+
+button.btn-danger {
+    background: #EF5B6A;
+
+    box-shadow:
+        0 6px 16px rgba(239, 91, 106, 0.18);
+}
+
+button.btn-danger:hover {
+    background: #D94858;
+
+    box-shadow:
+        0 8px 20px rgba(239, 91, 106, 0.22);
+}
+
+/* =========================
+   서명 캔버스
+========================= */
+
+.canvas-container {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 canvas {
-    touch-action: none; /* 터치 스크롤 방지 */
-    -ms-touch-action: none;
+    width: 100%;
+    max-width: 400px;
+    height: 200px;
+
+    border: 2px dashed #D8DEEA;
+
+    border-radius: 16px;
+
+    background-color: #FCFDFE;
+
+    margin-bottom: 24px;
+
+    touch-action: none;
+
+    cursor: crosshair;
+
+    transition:
+        border-color 0.2s ease,
+        background-color 0.2s ease;
 }
 
+canvas:active {
+    border-color: var(--primary);
+
+    background-color: #F8FAFF;
+}
+
+/* =========================
+   버튼 그룹
+========================= */
+
+.button-group {
+    display: flex;
+
+    gap: 12px;
+
+    width: 100%;
+}
+
+.button-group button {
+    margin-top: 0;
+}
+
+/* =========================
+   링크
+========================= */
+
+a {
+    text-decoration: none;
+
+    width: 100%;
+}
+
+/* =========================
+   Footer
+========================= */
+
+footer {
+    margin-top: 32px;
+
+    text-align: center;
+
+    color: var(--text-muted);
+
+    font-size: 13px;
+
+    line-height: 1.6;
+}
+
+footer .copyright {
+    font-weight: 600;
+
+    margin-bottom: 4px;
+
+    color: var(--navy);
+}
+
+.help-msg {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 13px;
+    color: #98A2B3;
+}
+
+.help-msg strong {
+    color: #667085;
+    font-weight: 600;
+}
+
+.settings-actions {
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+    padding-top: 24px;
+
+    display: flex;
+    gap: 12px;
+}
+
+.settings-actions button {
+    width: 220px;
+    margin: 0;
+}
+
+.btn-preview {
+    background: #EEF2F7;
+    color: #344054;
+    box-shadow: none;
+}
+
+.btn-preview:hover {
+    background: #E4E9F1;
+    box-shadow: none;
+    transform: none;
+}

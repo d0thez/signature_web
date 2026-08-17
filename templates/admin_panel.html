@@ -1,217 +1,1209 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>관리자 패널</title>
     <link rel="stylesheet" href="/static/style.css">
+
     <style>
         body {
-            font-family: 'Pretendard', sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            padding: 20px;
+            align-items: flex-start;
+            padding: 40px 20px;
+        }
+
+        .admin-container {
+            background: var(--surface);
+            width: 100%;
+            max-width: 1200px;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .04);
+            margin: 0 auto;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 20px;
+        }
+
+        .admin-header h2 {
+            margin-bottom: 0;
+            text-align: left;
+        }
+
+        /* =========================
+           공통 섹션
+        ========================= */
+
+        .section-box {
+            background: #FAFAFA;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .section-box h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .section-box p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        /* =========================
+           사이트 설정
+        ========================= */
+
+        .settings-section {
+            background: #FFFFFF;
+        }
+
+        .section-heading {
+            margin-bottom: 28px;
+        }
+
+        .section-heading h3 {
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .section-heading p {
+            margin-bottom: 0;
+            font-size: 14px;
+        }
+
+        .settings-group {
+            padding: 26px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .settings-group:first-of-type {
+            border-top: 0;
+            padding-top: 0;
+        }
+
+        .settings-group h4 {
+            font-size: 17px;
+            color: var(--navy);
+            margin-bottom: 6px;
+        }
+
+        .settings-description {
+            font-size: 13px !important;
+            color: var(--text-muted);
+            margin-bottom: 20px !important;
+        }
+
+        .settings-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .settings-grid-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .settings-grid-1 {
+            grid-template-columns: minmax(0, 1fr);
+            max-width: 900px;
+        }
+
+        .setting-field {
             display: flex;
             flex-direction: column;
-            align-items: center;
         }
 
-        h2, h3 {
+        .setting-field label {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 8px;
+        }
+
+        .setting-field input,
+        .setting-field textarea {
+            width: 100%;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            background: #FAFBFD;
+            color: var(--text-main);
+            font-size: 15px;
+            padding: 14px 16px;
+            transition:
+                border-color .2s ease,
+                box-shadow .2s ease,
+                background-color .2s ease;
+        }
+
+        .setting-field input {
+            height: 52px;
+        }
+
+        .setting-field textarea {
+            min-height: 82px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .setting-field input:focus,
+        .setting-field textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #FFFFFF;
+            box-shadow: 0 0 0 3px rgba(49, 85, 231, .10);
+        }
+
+        /* =========================
+           실시간 미리보기
+        ========================= */
+
+        .settings-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 390px;
+            gap: 32px;
+            align-items: start;
+        }
+
+        .settings-editor {
+            min-width: 0;
+        }
+
+        .live-preview {
+            position: sticky;
+            top: 24px;
+        }
+
+        .preview-header {
+            margin-bottom: 12px;
+        }
+
+        .preview-header h4 {
+            font-size: 17px;
+            color: var(--navy);
+            margin-bottom: 5px;
+        }
+
+        .preview-header p {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .preview-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            padding: 4px;
+            background: #EEF2F7;
+            border-radius: 10px;
+        }
+
+        .preview-tab {
+            flex: 1;
+            height: 36px;
+            margin: 0;
+            border: 0;
+            border-radius: 8px;
+            background: transparent;
+            color: #667085;
+            font-size: 12px;
+            font-weight: 700;
+            box-shadow: none;
+        }
+
+        .preview-tab:hover {
+            transform: none;
+            box-shadow: none;
+            background: transparent;
+        }
+
+        .preview-tab.active {
+            background: #FFFFFF;
+            color: var(--navy);
+            box-shadow: 0 1px 4px rgba(16, 26, 67, 0.08);
+        }
+
+        .preview-phone {
+            width: 100%;
+            max-width: 390px;
+            margin: 0 auto;
+            padding: 12px;
+            border-radius: 30px;
+            background: #111827;
+            box-shadow:
+                0 18px 45px rgba(16, 26, 67, 0.18),
+                0 4px 12px rgba(16, 26, 67, 0.08);
+        }
+
+        .preview-screen {
+            position: relative;
+            height: 700px;
+            overflow: hidden;
+            border-radius: 22px;
+            background: var(--bg-color);
+        }
+
+        .preview-screen-inner {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            padding: 18px 14px 24px;
+        }
+
+        .preview-screen-inner::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .preview-screen-inner::-webkit-scrollbar-thumb {
+            background: #D8DEEA;
+            border-radius: 999px;
+        }
+
+        .preview-site-card {
+            width: 100%;
+            max-width: 360px;
+            margin: 0 auto;
+            padding: 34px 24px 30px;
+            background: #FFFFFF;
+            border-radius: 22px;
+            box-shadow:
+                0 10px 30px rgba(16, 26, 67, 0.06),
+                0 2px 6px rgba(16, 26, 67, 0.03);
             text-align: center;
-            margin-bottom: 20px;
         }
 
-        form {
+        .preview-logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .preview-title {
+            margin: 0 0 24px;
+            color: var(--navy);
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.4;
+            letter-spacing: -0.5px;
+        }
+
+        .preview-input {
             width: 100%;
-            max-width: 400px;
-            margin-bottom: 30px;
-        }
-
-        label {
-            display: block;
-            margin-top: 12px;
-            margin-bottom: 4px;
-            font-weight: 500;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
+            height: 52px;
+            padding: 0 16px;
+            margin-bottom: 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            background: var(--input-bg);
+            color: var(--text-main);
             font-size: 16px;
-            border: 1.5px solid #ccc;
-            border-radius: 8px;
-            background-color: #fafafa;
-            color: #333;
-            transition: border-color 0.3s ease;
+            outline: none;
         }
 
-        button {
+        .preview-submit {
             width: 100%;
-            padding: 12px;
+            height: 52px;
+            margin: 8px 0 0;
+            border: 0;
+            border-radius: 11px;
+            background: linear-gradient(
+                135deg,
+                #2563EB 0%,
+                #3155E7 50%,
+                #6336E8 100%
+            );
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            box-shadow: 0 6px 16px rgba(49, 85, 231, 0.18);
+        }
+
+        .preview-help {
             margin-top: 20px;
-            font-size: 16px;
-            color: white;
-            background-color: #8d92f2;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+            text-align: center;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #98A2B3;
         }
 
-        button:hover {
-            background-color: #333;
+        .preview-help strong {
+            color: #667085;
+            font-weight: 600;
+            margin-right: 4px;
         }
 
-        .delete-button {
-            background-color: #ff5e5e;
-            color: white;
-            padding: 6px 12px;
-            font-size: 14px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
+        .preview-success-icon {
+            font-size: 64px;
+            line-height: 1;
+            margin-bottom: 16px;
         }
 
-        .delete-button:hover {
-            background-color: #e74c3c;
+        .preview-desc {
+            font-size: 15px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 30px;
+            line-height: 1.6;
         }
 
-        .edit-button {
-            background-color: #5e9cff;
-            color: white;
-            padding: 6px 12px;
-            font-size: 14px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
+        .preview-slogan {
+            margin-top: 12px;
+            color: var(--primary);
+            font-size: 15px;
+            font-weight: 600;
         }
 
-        .edit-button:hover {
-            background-color: #2f74d6;
+        .preview-home-button {
+            margin-top: 24px;
+        }
+
+        .preview-complete-title {
+            margin-bottom: 16px;
+            font-size: 20px;
+            line-height: 1.45;
+            letter-spacing: -0.4px;
+        }
+
+        .preview-footer {
+            width: 100%;
+            max-width: 360px;
+            margin: 16px auto 0;
+            padding: 0 8px 8px;
+            text-align: center;
+            color: #667085;
+            font-size: 10px;
+            line-height: 1.6;
+        }
+
+        .preview-copyright {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .preview-footer #preview_developer {
+            color: #98A2B3;
+        }
+
+        .preview-note {
+            margin-top: 12px !important;
+            text-align: center;
+            font-size: 11px !important;
+            color: #98A2B3 !important;
+        }
+
+        .settings-actions {
+            border-top: 1px solid var(--border);
+            margin-top: 4px;
+            padding-top: 24px;
+        }
+
+        .settings-actions button {
+            width: 260px;
+            margin: 0;
+        }
+
+        /* =========================
+           로고 설정
+        ========================= */
+
+        .settings-logo {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            background: white;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 8px;
+        }
+
+        .settings-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        /* =========================
+           회원 추가 폼
+        ========================= */
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        /* =========================
+           테이블
+        ========================= */
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
         }
 
         table {
             width: 100%;
-            max-width: 1000px;
             border-collapse: collapse;
-            margin-top: 30px;
+            white-space: nowrap;
         }
 
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-
-        th, td {
-            padding: 12px;
+        th,
+        td {
+            padding: 14px 12px;
             text-align: center;
+            border-bottom: 1px solid var(--border);
         }
 
         th {
-            background-color: #e0e0e0;
+            background-color: #F8FAFC;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 14px;
         }
 
-        a button {
-            background-color: #888;
-            margin-top: 30px;
+        td {
+            color: var(--text-main);
+            font-size: 15px;
+            vertical-align: middle;
         }
 
-        a button:hover {
-            background-color: #666;
+        /* =========================
+           작은 버튼
+        ========================= */
+
+        .btn-sm {
+            height: 36px;
+            padding: 0 14px;
+            font-size: 13px;
+            margin: 0;
+            border-radius: 8px;
+            width: auto;
+            display: inline-flex;
         }
+
+        .btn-edit {
+            background-color: #0984E3;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background-color: #0875C8;
+        }
+
+        .btn-delete {
+            background-color: #D63031;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background-color: #B92526;
+        }
+
+        .download-link {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: underline;
+        }
+
+        /* =========================
+           알림 메시지
+        ========================= */
+
+        .flash-message {
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: #EEF4FF;
+            color: #3155E7;
+            margin-bottom: 24px;
+            font-weight: 600;
+        }
+
+        /* =========================
+           모바일
+        ========================= */
+
+        @media (max-width: 700px) {
+
+            .admin-container {
+                padding: 20px;
+            }
+
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .settings-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .live-preview {
+                position: static;
+            }
+
+            .preview-phone {
+                max-width: 390px;
+            }
+
+            .settings-grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .settings-grid-1 {
+                max-width: none;
+            }
+
+            .settings-section {
+                padding: 20px;
+            }
+
+            .settings-group {
+                padding: 22px 0;
+            }
+
+            .settings-actions button {
+                width: 100%;
+            }
+
+            .settings-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    
+        .admin-nav {
+            display: flex;
+            gap: 8px;
+            margin: -8px 0 32px;
+            padding: 5px;
+            background: #F1F4F8;
+            border-radius: 12px;
+        }
+        .admin-nav a { flex: 1; width: auto; text-decoration: none; }
+        .admin-nav button {
+            width: 100%; height: 44px; margin: 0; border-radius: 9px;
+            background: transparent; color: #667085; font-size: 14px;
+            font-weight: 700; box-shadow: none;
+        }
+        .admin-nav button:hover {
+            background: #E8EDF4; color: var(--navy);
+            box-shadow: none; transform: none;
+        }
+        .admin-nav .active {
+            background: #FFFFFF; color: var(--navy);
+            box-shadow: 0 1px 4px rgba(16, 26, 67, .08);
+        }
+        .page-intro { margin-bottom: 24px; }
+        .page-intro h3 { font-size: 22px; margin-bottom: 6px; color: var(--navy); }
+        .page-intro p { margin: 0; color: var(--text-muted); font-size: 14px; }
+        @media (max-width: 700px) {
+            .admin-nav { flex-direction: column; }
+        }
+
     </style>
-    <script>
-        function editUser(userId, name, department, grade, studentId, phone, phoneLast4) {
-            document.getElementById('name').value = name;
-            document.getElementById('department').value = department;
-            document.getElementById('grade').value = grade;
-            document.getElementById('student_id').value = studentId;
-            document.getElementById('phone').value = phone;
-            document.getElementById('phone_last4').value = phoneLast4;
-
-            document.getElementById('user_form').action = '/admin/update_user';
-            document.getElementById('submit_button').innerText = '수정하기';
-
-            let existingHidden = document.querySelector('input[name="id"]');
-            if (existingHidden) existingHidden.remove();
-
-            let hiddenIdField = document.createElement('input');
-            hiddenIdField.type = 'hidden';
-            hiddenIdField.name = 'id';
-            hiddenIdField.value = userId;
-            document.getElementById('user_form').appendChild(hiddenIdField);
-        }
-    </script>
 </head>
 <body>
-    <h2>관리자 패널</h2>
+<div class="admin-container">
+    <!-- =========================
+         관리자 헤더
+    ========================== -->
 
-    <h3>회원 정보 수정</h3>
-    <form id="user_form" action="/admin/add_user" method="POST">
-        <label for="name">이름</label>
-        <input type="text" id="name" name="name" required>
+    <div class="admin-header">
+        <h2>관리자 패널</h2>
 
-        <label for="department">학과</label>
-        <input type="text" id="department" name="department" required>
+        <a href="/" style="width: auto;">
+            <button
+                type="button"
+                class="btn-secondary btn-sm"
+                style="padding: 0 20px;"
+            >
+                메인으로 나가기
+            </button>
+        </a>
+    </div>
 
-        <label for="grade">학년</label>
-        <input type="tel" id="grade" name="grade" required>
 
-        <label for="student_id">학번</label>
-        <input type="tel" id="student_id" name="student_id" required>
+    <!-- =========================
+         Flash 메시지
+    ========================== -->
 
-        <label for="phone">전화번호</label>
-        <input type="tel" id="phone" name="phone" required>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="flash-message">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
-        <label for="phone_last4">전화번호 뒷 네자리 (암호)</label>
-        <input type="tel" id="phone_last4" name="phone_last4" maxlength="4" required>
 
-        <button type="submit" id="submit_button">회원 추가</button>
-    </form>
 
-    <hr style="width: 100%; max-width: 1000px;">
+    <nav class="admin-nav">
+        <a href="/admin_panel"><button type="button" class="active">웹페이지 관리</button></a>
+        <a href="/admin_members"><button type="button">회원 관리</button></a>
+    </nav>
 
-    <table>
-        <tr>
-            <th>이름</th>
-            <th>학과</th>
-            <th>학년</th>
-            <th>학번</th>
-            <th>전화번호</th>
-            <th>암호</th>
-            <th>서명 여부</th>
-            <th>서명 다운로드</th>
-            <th>수정</th>
-            <th>삭제</th>
-        </tr>
-        {% for user in users %}
-        <tr>
-            <td>{{ user[1] }}</td>
-            <td>{{ user[2] }}</td>
-            <td>{{ user[3] }}</td>
-            <td>{{ user[4] }}</td>
-            <td>{{ user[5] }}</td>
-            <td>{{ user[6] }}</td>
-            <td>{{ '✅' if user[7] == 1 else '❌' }}</td>
-            <td>
-                {% if user[7] == 1 %}
-                <a href="/download/{{ user[1] }}.png">다운로드</a>
-                {% else %}
-                -
-                {% endif %}
-            </td>
-            <td>
-                <button type="button" class="edit-button" onclick="editUser('{{ user[0] }}', '{{ user[1] }}', '{{ user[2] }}', '{{ user[3] }}', '{{ user[4] }}', '{{ user[5] }}', '{{ user[6] }}')">편집</button>
-            </td>
-            <td>
-                <form action="/admin/delete_user/{{ user[0] }}" method="POST" style="margin: 0;">
-                    <button type="submit" class="delete-button">삭제</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+    <!-- =========================
+         사이트 기본 설정
+    ========================== -->
 
-    <a href="/"><button>메인 페이지로</button></a>
+    <div class="section-box settings-section">
+
+        <div class="section-heading">
+            <h3>사이트 기본 설정</h3>
+
+            <p>
+                홈페이지의 문구와 표시 정보를 이곳에서 편집할 수 있습니다.
+                <strong>저장하면</strong> 즉시 반영됩니다.
+            </p>
+        </div>
+
+
+        <div class="settings-layout">
+            <div class="settings-editor">
+
+        <form action="/admin/settings" method="POST">
+
+            <!-- 기본 정보 -->
+
+            <div class="settings-group">
+
+                <h4>기본 정보</h4>
+
+                <p class="settings-description">
+                    매 학기 변경되는 기본 정보를 설정합니다.
+                </p>
+
+                <div class="settings-grid settings-grid-2">
+
+                    <div class="setting-field">
+                        <label for="organization_name">
+                            동아리 이름
+                        </label>
+
+                        <input
+                            type="text"
+                            id="organization_name"
+                            name="organization_name"
+                            value="{{ site.organization_name }}"
+                            required
+                        >
+                    </div>
+
+                    <div class="setting-field">
+
+                    </div>
+
+                    <div class="setting-field">
+                        <label for="academic_year">
+                            년도
+                        </label>
+
+                        <input
+                            type="text"
+                            id="academic_year"
+                            name="academic_year"
+                            value="{{ site.academic_year }}"
+                            required
+                        >
+                    </div>
+
+
+                    <div class="setting-field">
+                        <label for="semester">
+                            학기
+                        </label>
+
+                        <input
+                            type="text"
+                            id="semester"
+                            name="semester"
+                            value="{{ site.semester }}"
+                            required
+                        >
+                    </div>
+
+
+
+                </div>
+
+            </div>
+
+
+            <!-- 인증 안내 -->
+
+            <div class="settings-group">
+
+                <h4>인증 안내</h4>
+
+                <p class="settings-description">
+                    회원이 본인 인증을 진행할 때 표시되는 안내 문구입니다.
+                </p>
+
+                <div class="settings-grid settings-grid-1">
+
+                    <div class="setting-field">
+
+                        <label for="help_title">
+                            도움말 제목
+                        </label>
+
+                        <input
+                            type="text"
+                            id="help_title"
+                            name="help_title"
+                            value="{{ site.help_title }}"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="setting-field">
+
+                        <label for="help_message">
+                            도움말 내용
+                        </label>
+
+                        <textarea
+                            id="help_message"
+                            name="help_message"
+                            rows="3"
+                            required
+                        >{{ site.help_message }}</textarea>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- 서명 완료 화면 -->
+
+            <div class="settings-group">
+
+                <h4>서명 완료 화면</h4>
+
+                <p class="settings-description">
+                    회원이 서명을 완료한 뒤 표시되는 메시지를 설정합니다.
+                </p>
+
+                <div class="settings-grid settings-grid-1">
+
+                    <div class="setting-field">
+
+                        <label for="completion_title">
+                            서명 완료 제목
+                        </label>
+
+                        <input
+                            type="text"
+                            id="completion_title"
+                            name="completion_title"
+                            value="{{ site.completion_title }}"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="setting-field">
+
+                        <label for="completion_message">
+                            서명 완료 안내
+                        </label>
+
+                        <textarea
+                            id="completion_message"
+                            name="completion_message"
+                            rows="3"
+                            required
+                        >{{ site.completion_message }}</textarea>
+
+                    </div>
+
+
+                    <div class="setting-field">
+
+                        <label for="slogan">
+                            마무리 문구
+                        </label>
+
+                        <textarea
+                            id="slogan"
+                            name="slogan"
+                            rows="2"
+                            required
+                        >{{ site.slogan }}</textarea>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- 저장 버튼 -->
+
+            <div class="settings-actions">
+
+                <button type="submit">
+                    변경사항 저장하기
+                </button>
+                
+
+
+            </div>
+
+        </form>
+
+            </div>
+
+            <!-- 실시간 미리보기 -->
+            <aside class="live-preview">
+
+                <div class="preview-header">
+                    <h4>실시간 미리보기</h4>
+                </div>
+
+                <div class="preview-tabs">
+                    <button type="button" class="preview-tab active" id="preview_tab_main"
+                            onclick="showPreviewScreen('main')">인증 화면</button>
+                    <button type="button" class="preview-tab" id="preview_tab_complete"
+                            onclick="showPreviewScreen('complete')">서명 완료</button>
+                </div>
+
+                <div class="preview-phone">
+                    <div class="preview-screen">
+                        <div class="preview-screen-inner">
+
+                            <div class="preview-page" id="preview_main_page">
+                                <div class="preview-site-card">
+                                    <img src="{{ url_for('static', filename=site.logo) }}"
+                                         class="preview-logo" id="preview_logo" alt="로고 미리보기">
+
+                                    <h2 class="preview-title" id="preview_title">
+                                        {{ site.academic_year }}년 {{ site.semester }}
+                                        '{{ site.organization_name }}'<br>
+                                        동아리 재등록 시스템
+                                    </h2>
+
+                                    <div class="preview-form">
+                                        <input type="text" class="preview-input"
+                                               placeholder="이름을 입력하세요" readonly>
+                                        <input type="tel" class="preview-input"
+                                               placeholder="전화번호 뒷자리 4자리" readonly>
+                                        <button type="button" class="preview-submit">
+                                            본인 인증하기
+                                        </button>
+                                    </div>
+
+                                    <p class="preview-help" id="preview_help">
+                                        <strong id="preview_help_title">{{ site.help_title }}</strong>
+                                        <span id="preview_help_message">{{ site.help_message }}</span>
+                                    </p>
+                                </div>
+
+                                <div class="preview-footer">
+                                    <div class="preview-copyright">
+                                        © <span id="preview_year">{{ site.academic_year }}</span>
+                                        NEWMAN.
+                                        All rights reserved.
+                                    </div>
+                                    <div id="preview_developer">Developed by Stephen Kim</div>
+                                </div>
+
+                            </div>
+
+                            <div class="preview-page preview-complete-page" id="preview_complete_page" style="display:none;">
+                                <div class="preview-site-card">
+                                    <div class="preview-success-icon">🎉</div>
+                                    <h2 class="preview-title preview-complete-title" id="preview_completion_title">
+                                        {{ site.academic_year }}학년도 {{ site.semester }}<br>
+                                        {{ site.organization_name }} {{ site.completion_title }}
+                                    </h2>
+                                    <p class="preview-desc" id="preview_completion_message">
+                                        {{ site.completion_message }}
+                                    </p>
+                                    <div class="preview-slogan" id="preview_slogan">{{ site.slogan }}</div>
+                                    <button type="button" class="preview-submit preview-home-button">
+                                        메인 화면으로 돌아가기
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <p class="preview-note">
+                    ※ 미리보기는 해상도에 따라 일부 요소가 다르게 보일 수 있음.
+                </p>
+            </aside>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =========================
+         로고 설정
+    ========================== -->
+
+    <div class="section-box">
+
+        <h3>로고 변경</h3>
+
+        <p>
+            PNG, JPG, JPEG, WEBP 이미지를 업로드하면
+            메인 페이지와 설정된 위치의 로고가 자동으로 변경됩니다.
+        </p>
+
+        <div class="settings-row">
+
+            <div>
+
+                <img
+                    src="{{ url_for('static', filename=site.logo) }}"
+                    class="settings-logo"
+                    alt="현재 로고"
+                >
+
+            </div>
+
+
+            <form
+                action="/admin/settings/logo"
+                method="POST"
+                enctype="multipart/form-data"
+            >
+
+                <input
+                    type="file"
+                    name="logo"
+                    accept=".png,.jpg,.jpeg,.webp"
+                    required
+                    style="
+                        height: auto;
+                        padding: 12px;
+                        background: white;
+                    "
+                >
+
+                <button
+                    type="submit"
+                    style="
+                        margin-top: 12px;
+                        max-width: 300px;
+                    "
+                >
+                    로고 변경
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+
+</div>
+<script>
+    /* =========================
+       사이트 설정 실시간 미리보기
+    ========================= */
+
+    function updateLivePreview() {
+
+        const organization =
+            document.getElementById('organization_name')?.value || '';
+
+        const year =
+            document.getElementById('academic_year')?.value || '';
+
+        const semester =
+            document.getElementById('semester')?.value || '';
+
+        const mainTitle = '동아리 재등록 시스템';
+
+        const helpTitle =
+            document.getElementById('help_title')?.value || '';
+
+        const helpMessage =
+            document.getElementById('help_message')?.value || '';
+
+        const completionTitle =
+            document.getElementById('completion_title')?.value || '';
+
+        const completionMessage =
+            document.getElementById('completion_message')?.value || '';
+
+        const slogan =
+            document.getElementById('slogan')?.value || '';
+
+        const titleElement =
+            document.getElementById('preview_title');
+
+        const helpTitleElement =
+            document.getElementById('preview_help_title');
+
+        const helpMessageElement =
+            document.getElementById('preview_help_message');
+
+        const yearElement =
+            document.getElementById('preview_year');
+
+        const orgElement =
+            document.getElementById('preview_org');
+
+        const developerElement =
+            document.getElementById('preview_developer');
+
+        const completionTitleElement =
+            document.getElementById('preview_completion_title');
+
+        const completionMessageElement =
+            document.getElementById('preview_completion_message');
+
+        const sloganElement =
+            document.getElementById('preview_slogan');
+
+        if (titleElement) {
+            titleElement.innerHTML =
+                `${escapePreview(year)}년 ${escapePreview(semester)} '${escapePreview(organization)}'<br>
+                 ${escapePreview(mainTitle)}`;
+        }
+
+        if (helpTitleElement) {
+            helpTitleElement.textContent = helpTitle;
+        }
+
+        if (helpMessageElement) {
+            helpMessageElement.textContent = helpMessage;
+        }
+
+        if (yearElement) {
+            yearElement.textContent = year;
+        }
+
+        if (orgElement) {
+            orgElement.textContent = organization;
+        }
+
+        if (developerElement) {
+            developerElement.textContent = developer;
+        }
+
+        if (completionTitleElement) {
+            completionTitleElement.innerHTML =
+                `${escapePreview(year)}학년도 ${escapePreview(semester)}<br>
+                 ${escapePreview(organization)} ${escapePreview(completionTitle)}`;
+        }
+
+        if (completionMessageElement) {
+            completionMessageElement.textContent = completionMessage;
+        }
+
+        if (sloganElement) {
+            sloganElement.textContent = slogan;
+        }
+    }
+
+
+    function escapePreview(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+
+    function showPreviewScreen(screen) {
+
+        const mainPage =
+            document.getElementById('preview_main_page');
+
+        const completePage =
+            document.getElementById('preview_complete_page');
+
+        const mainTab =
+            document.getElementById('preview_tab_main');
+
+        const completeTab =
+            document.getElementById('preview_tab_complete');
+
+        if (screen === 'complete') {
+
+            mainPage.style.display = 'none';
+            completePage.style.display = 'block';
+
+            mainTab.classList.remove('active');
+            completeTab.classList.add('active');
+
+        } else {
+
+            mainPage.style.display = 'block';
+            completePage.style.display = 'none';
+
+            mainTab.classList.add('active');
+            completeTab.classList.remove('active');
+        }
+    }
+
+
+    [
+        'organization_name',
+        'academic_year',
+        'semester',
+        'main_title',
+        'help_title',
+        'help_message',
+        'completion_title',
+        'completion_message',
+        'slogan',
+        'developer'
+    ].forEach(function (id) {
+
+        const element =
+            document.getElementById(id);
+
+        if (element) {
+            element.addEventListener(
+                'input',
+                updateLivePreview
+            );
+        }
+
+    });
+
+
+    updateLivePreview();
+
+
+</script>
 </body>
 </html>

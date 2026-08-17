@@ -2,78 +2,59 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>감사합니다!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>서명 완료 - 감사합니다!</title>
     <link rel="stylesheet" href="/static/style.css">
-
     <style>
-        * {
-            box-sizing: border-box;
+        .success-icon {
+            font-size: 72px;
+            margin-bottom: 16px;
+            display: inline-block;
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        html, body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Pretendard', sans-serif;
-            background-color: #f4f4f9;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            80% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
         }
 
-        h2 {
-            font-size: 24px;
+        .thank-you-container {
+            text-align: center;
+        }
+
+        .thank-you-container h2 {
+            margin-bottom: 16px;
+        }
+
+        .slogan {
             font-weight: 600;
-            margin-bottom: 20px;
-            color: #333;
-            text-align: center;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 20px;
+            color: var(--primary);
+            margin-top: 12px;
             font-size: 16px;
-            color: white;
-            background-color: #8d92f2;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #6b73e0;
-        }
-
-        a {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        @media (max-width: 480px) {
-            h2 {
-                font-size: 20px;
-            }
-
-            button {
-                font-size: 14px;
-            }
         }
     </style>
 </head>
 <body>
 
-    <h2>2025학년도 1학기<br>
-        뉴맨 회원 명부에 서명되었습니다!<br>
-        서명해주셔서 감사합니다~~ 😊</h2>
+    <div class="container thank-you-container">
+        <div class="success-icon">🎉</div>
 
-    <p>언제나 당신의 곁에서, NEWMAN</p>
-    <a href="/">
-        <button>메인화면으로 돌아가기</button>
-    </a>
+        <h2>
+            {{ site.academic_year }}학년도 {{ site.semester }}<br>
+            {{ site.organization_name }} {{ site.completion_title }}
+        </h2>
+
+        <p class="desc">
+            {{ site.completion_message }}
+        </p>
+
+        <div class="slogan">{{ site.slogan }}</div>
+
+        <a href="/" style="margin-top: 24px;">
+            <button type="button">메인 화면으로 돌아가기</button>
+        </a>
+    </div>
 
 </body>
 </html>

@@ -3,141 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>정보 확인</title>
+    <title>회원 정보 확인</title>
     <link rel="stylesheet" href="/static/style.css">
     <style>
-        * {
-            box-sizing: border-box;
+        /* 정보 확인 페이지 전용 추가 스타일 */
+        .info-notice {
+            background-color: rgba(122, 87, 209, 0.08);
+            color: var(--primary);
+            padding: 18px 20px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 24px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid rgba(122, 87, 209, 0.15);
         }
 
-        html, body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Pretendard', sans-serif;
-            background-color: #f4f4f9;
+        .info-notice strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        /* 프로필 폼 영역을 하나로 묶어주는 박스 */
+        .profile-card {
+            background-color: #FAFAFA;
+            padding: 24px 20px 8px 20px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+            width: 100%;
+        }
+
+        .profile-card .input-group label {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
-            overflow-x: hidden;
-        }
-
-        h2 {
-            font-size: 24px;
+            gap: 6px;
             font-weight: 600;
-            margin-top: 20px;
-            margin-bottom: 20px;
-            color: #333;
-            text-align: center;
+            color: #4A5568;
         }
 
-        p {
-            font-size: 16px;
-            color: #555;
-            text-align: center;
-            margin-bottom: 40px;
+        /* 기존 인풋 스타일을 조금 더 깔끔하게 덮어쓰기 */
+        .profile-card input {
+            background-color: var(--surface);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
         }
 
-        form {
-            background-color: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 500px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
+        /* 메인 액션 버튼 강조 */
+        .btn-submit-action {
+            box-shadow: 0 6px 16px rgba(122, 87, 209, 0.25);
+            font-size: 17px;
         }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            font-size: 16px;
-            border: 1.5px solid #ccc;
-            border-radius: 8px;
-            background-color: #fafafa;
-            color: #333;
-            transition: border-color 0.3s ease;
-        }
-
-        input:focus {
-            border-color: #7a57d1;
-            outline: none;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 20px;
-            font-size: 16px;
-            color: white;
-            background-color: #8d92f2;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #6b73e0;
-        }
-
-        a {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        a button {
-            background-color: #888;
-        }
-
-        a button:hover {
-            background-color: #666;
-        }
-
-        @media (max-width: 480px) {
-            h2 {
-                font-size: 20px;
-            }
-
-            input, button {
-                font-size: 14px;
-            }
+        
+        .btn-submit-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(122, 87, 209, 0.35);
         }
     </style>
 </head>
 <body>
 
-    <h2>{{ user[1] }}님의 정보 확인</h2>
-    <p>내용 확인 후 오류가 있으면 수정해주세요!</p>
+    <div class="container">
+        <h2>{{ user[1] }}님의 정보 확인</h2>
+        
+        <div class="info-notice">
+            <strong>💡 등록된 정보를 확인해 주세요!</strong>
+            오류나 변경된 사항이 있다면<br>아래 입력창에서 직접 수정한 후 넘어가주세요.
+        </div>
 
-    <form action="/confirm_info" method="POST">
-        <input type="hidden" name="id" value="{{ user[0] }}">
-        <input type="hidden" name="phone_last4" value="{{ user[6] }}" required>
+        <form action="/confirm_info" method="POST" style="width: 100%;">
+            <input type="hidden" name="id" value="{{ user[0] }}">
+            <input type="hidden" name="phone_last4" value="{{ user[6] }}" required>
 
-        <label for="name">이름</label>
-        <input type="text" id="name" name="name" value="{{ user[1] }}" required><br>
+            <div class="profile-card">
+                <div class="input-group">
+                    <label for="name">👤 이름</label>
+                    <input type="text" id="name" name="name" value="{{ user[1] }}" required>
+                </div>
 
-        <label for="department">학과</label>
-        <input type="text" id="department" name="department" value="{{ user[2] }}" required><br>
+                <div class="input-group">
+                    <label for="department">🏛️ 학과</label>
+                    <input type="text" id="department" name="department" value="{{ user[2] }}" required>
+                </div>
 
-        <label for="grade">학년</label>
-        <input type="tel" id="grade" name="grade" value="{{ user[3] }}" required><br>
+                <div class="input-group">
+                    <label for="grade">🎓 학년</label>
+                    <input type="tel" id="grade" name="grade" value="{{ user[3] }}" required>
+                </div>
 
-        <label for="student_id">학번</label>
-        <input type="tel" id="student_id" name="student_id" value="{{ user[4] }}" required><br>
+                <div class="input-group">
+                    <label for="student_id">📝 학번 (9자리 전체)</label>
+                    <input type="tel" id="student_id" name="student_id" value="{{ user[4] }}" required>
+                </div>
 
-        <label for="phone">전화번호</label>
-        <input type="tel" id="phone" name="phone" value="{{ user[5] }}" required><br>
+                <div class="input-group">
+                    <label for="phone">📱 전화번호 (-제외 숫자만)</label>
+                    <input type="tel" id="phone" name="phone" value="{{ user[5] }}" required maxlength="13">
+                </div>
+            </div>
 
-        <button type="submit">확인 후 서명하기</button>
-    </form>
+            <button type="submit" class="btn-submit-action">정보 확인 완료 및 서명하기</button>
+        </form>
 
-    <a href="/">
-        <button>← 메인으로 돌아가기</button>
-    </a>
+        <a href="/" style="width: 100%;">
+            <button type="button" class="btn-secondary">처음으로 돌아가기</button>
+        </a>
+    </div>
 
+    <script>
+        document.getElementById('phone').addEventListener('input', function (e) {
+            // 입력된 값에서 숫자만 빼고 다 지움
+            let val = e.target.value.replace(/[^0-9]/g, '');
+            let result = '';
+
+            // 000-0000-0000 형식으로 포맷팅
+            if (val.length < 4) {
+                // 3자리 이하는 그대로 (예: 010)
+                result = val;
+            } else if (val.length < 8) {
+                // 4~7자리는 중간에 하이픈 하나 (예: 010-1234)
+                result = val.substring(0, 3) + '-' + val.substring(3);
+            } else {
+                // 8자리 이상은 하이픈 두 개 (예: 010-1234-5678)
+                result = val.substring(0, 3) + '-' + val.substring(3, 7) + '-' + val.substring(7, 11);
+            }
+            
+            e.target.value = result;
+        });
+    </script>
 </body>
 </html>

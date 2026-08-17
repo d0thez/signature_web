@@ -3,136 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>동아리 재등록 서명</title>
+    <title>{{ site.academic_year }}년 {{ site.semester }} {{ site.organization_name }} - {{ site.main_title }}</title>
     <link rel="stylesheet" href="/static/style.css">
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        html, body {
-            overflow: hidden;          /* 스크롤 막기 */
-            overflow-x: hidden;
-            height: 100%;              /* 전체 화면 사용 */
-        }
-
-        body {
-            margin: 0;
-            padding: 24px;
-            font-family: 'Pretendard', sans-serif;
-            background-color: #ffffff;
-            color: #111;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        h2 {
-            text-align: center;
-            font-size: 22px;
-            font-weight: 600;
-            margin-bottom: 24px;
-            line-height: 1.5;
-        }
-
-        img {
-            width: 130px;
-            margin-bottom: 24px;
-        }
-
-        form {
-            width: 100%;
-            max-width: 360px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        input {
-            width: 70%;
-            height: 48px;
-            margin-bottom: 16px;
-            padding: 0 14px;
-            font-size: 16px;
-            border: 1.5px solid #ccc;
-            border-radius: 10px;
-            background-color: #fafafa;
-            color: #333;
-            transition: border-color 0.2s;
-        }
-
-        input:focus {
-            border-color: #7a57d1;
-            outline: none;
-        }
-
-        button {
-            width: 100%;
-            max-width: 300px;
-            height: 48px;
-            margin-bottom: 14px;
-            border: none;
-            border-radius: 10px;
-            background-color: #8D92F2;
-            color: white;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        button:hover {
-            background-color: #333;
-        }
-
-        a button {
-            background-color: #888;
-        }
-
-        a button:hover {
-            background-color: #666;
-        }
-
-        p {
-            text-align: center;
-            color: red;
-        }
-
-        @media (max-width: 480px) {
-            h2 {
-                font-size: 18px;
-            }
-
-            input, button {
-                font-size: 15px;
-            }
-        }
-    </style>
 </head>
 <body>
 
-    <h2>
-        2025년 1학기 '뉴맨'<br>
-        동아리 재등록<br>
-        온라인 서명 시스템
-    </h2>
+    <div class="container">
+        <img src="{{ url_for('static', filename=site.logo) }}"
+             alt="{{ site.organization_name }} 로고"
+             class="logo">
 
-    <img src="/static/newman_logo.jpg" alt="동아리 로고">
+        <h2>
+            {{ site.academic_year }}년 {{ site.semester }} '{{ site.organization_name }}'<br>
+            {{ site.main_title }}
+        </h2>
 
-    <form action="/verify" method="POST">
-        {% if error %}
-        <p>{{ error }}</p>
-        {% endif %}
+        <form action="/verify" method="POST">
+            {% if error %}
+            <p class="error-msg">{{ error }}</p>
+            {% endif %}
 
-        <input type="text" name="name" placeholder="이름" required>
-        <input type="tel" name="phone_last4" placeholder="전화번호 뒷자리" maxlength="4" required><br>
-        <button type="submit">서명하기</button><br>
-    </form>
+            <div class="input-group">
+                <input type="text" name="name" placeholder="이름을 입력하세요" required>
+            </div>
 
-    <a href="/admin"><button>관리자 로그인</button></a>
+            <div class="input-group">
+                <input type="tel" name="phone_last4"
+                       placeholder="전화번호 뒷자리 4자리"
+                       maxlength="4"
+                       inputmode="numeric"
+                       required>
+            </div>
 
-    
+            <button type="submit">본인 인증하기</button>
+        </form>
+
+        <p class="help-msg">
+            <strong>{{ site.help_title }}</strong>
+            {{ site.help_message }}
+        </p>
+    </div>
+
+    <footer>
+        <div class="copyright">
+            © {{ site.academic_year }} NEWMAN. All rights reserved.
+        </div>
+        <div class="developer">Developed by Stephen Kim</div>    
+    </footer>
 
 </body>
 </html>
