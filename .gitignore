@@ -1,0 +1,17 @@
+**/*.key
+**/*.key.pub
+
+# 가상환경
+
+.venv/
+venv/
+env/
+
+
+.vscode/
+
+#서명 파일
+
+signatures/
+
+

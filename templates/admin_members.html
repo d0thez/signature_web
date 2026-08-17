@@ -1,0 +1,2465 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원 관리 | 관리자</title>
+    <link rel="stylesheet" href="/static/style.css">
+
+    <!-- 엑셀/ZIP 내보내기용 브라우저 라이브러리 -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+
+    <style>
+        body {
+            align-items: flex-start;
+            padding: 40px 20px;
+        }
+
+        .admin-container {
+            background: var(--surface);
+            width: 100%;
+            max-width: 1200px;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .04);
+            margin: 0 auto;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 20px;
+        }
+
+        .admin-header h2 {
+            margin-bottom: 0;
+            text-align: left;
+        }
+
+        /* 관리자 탭 */
+        .admin-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 32px;
+            padding: 4px;
+            background: #F2F4F7;
+            border-radius: 12px;
+        }
+
+        .admin-tab {
+            flex: 1;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9px;
+            color: #667085;
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all .2s ease;
+        }
+
+        .admin-tab:hover {
+            background: #E4E7EC;
+            color: var(--text-main);
+        }
+
+        .admin-tab.active {
+            background: #FFFFFF;
+            color: var(--primary);
+            box-shadow: 0 2px 8px rgba(16, 24, 40, .08);
+        }
+
+        /* 공통 섹션 */
+        .section-box {
+            background: #FAFAFA;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .section-heading {
+            margin-bottom: 24px;
+        }
+
+        .section-heading h3 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .section-heading p {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        /* 통계 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 20px;
+            cursor: pointer;
+            transition: all .2s ease;
+        }
+
+        .stat-card:hover {
+            border-color: #D0D5DD;
+            transform: translateY(-1px);
+        }
+
+        .stat-label {
+            display: block;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 7px;
+        }
+
+        .stat-value {
+            font-size: 27px;
+            line-height: 1;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .stat-card.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(122, 87, 209, .08);
+        }
+
+        /* 검색/필터 */
+        .toolbar {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 18px;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+        }
+
+        .search-box span {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #98A2B3;
+            pointer-events: none;
+        }
+
+        .search-box input {
+            width: 100%;
+            height: 48px;
+            padding: 0 42px;
+            border: 1.5px solid var(--border);
+            border-radius: 11px;
+            background: #FAFBFD;
+            font-size: 15px;
+            color: var(--text-main);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #FFFFFF;
+            box-shadow: 0 0 0 3px rgba(122, 87, 209, .10);
+        }
+
+        .clear-search {
+            position: absolute;
+            right: 8px;
+            top: 7px;
+            width: 34px;
+            height: 34px;
+            padding: 0;
+            margin: 0;
+            border-radius: 8px;
+            background: transparent;
+            color: #98A2B3;
+            font-size: 17px;
+        }
+
+        .clear-search:hover {
+            background: #F2F4F7;
+            color: var(--text-main);
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 10px;
+        }
+
+        .filter-row select {
+            width: 100%;
+            height: 46px;
+            padding: 0 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            background: #FAFBFD;
+            color: var(--text-main);
+            font-size: 14px;
+        }
+
+        .filter-row select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .result-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin: 14px 2px 0;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        /* 회원 추가 */
+        .member-group {
+            padding: 26px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .member-group:first-of-type {
+            border-top: 0;
+            padding-top: 0;
+        }
+
+        .member-group h4 {
+            font-size: 17px;
+            color: var(--navy);
+            margin-bottom: 6px;
+        }
+
+        .member-description {
+            font-size: 13px !important;
+            color: var(--text-muted) !important;
+            margin-bottom: 18px !important;
+        }
+
+        .member-form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .member-field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .member-field input {
+            width: 100%;
+            height: 50px;
+            padding: 0 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            background: #FFFFFF;
+            color: var(--text-main);
+            font-size: 15px;
+        }
+
+        .member-field input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(122, 87, 209, .10);
+        }
+
+        .field-help {
+            margin-top: 6px;
+            color: #98A2B3;
+            font-size: 11px;
+        }
+
+        .member-actions-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        .member-actions-row button {
+            width: 220px;
+            margin: 0;
+        }
+
+        /* 엑셀 */
+        .upload-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .upload-row input[type="file"] {
+            height: 50px;
+            max-width: 430px;
+            padding: 10px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            background: #FFFFFF;
+        }
+
+        .upload-row button {
+            width: 150px;
+            margin: 0;
+        }
+
+        .member-helper {
+            margin-top: 10px !important;
+            color: #98A2B3 !important;
+            font-size: 12px !important;
+        }
+
+        /* 목록 상단 */
+        .member-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .member-count {
+            flex-shrink: 0;
+            padding: 7px 12px;
+            border-radius: 999px;
+            background: #EEF2F7;
+            color: #667085;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .bulk-toolbar {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            background: #FFFFFF;
+        }
+
+        .bulk-toolbar.show {
+            display: flex;
+        }
+
+        .bulk-left,
+        .bulk-right {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            flex-wrap: wrap;
+        }
+
+        .select-all-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .bulk-button {
+            width: auto;
+            height: 36px;
+            margin: 0;
+            padding: 0 13px;
+            border: 0;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            background: #EEF4FF;
+            color: #3155E7;
+        }
+
+        .bulk-button:hover {
+            background: #E0EAFF;
+        }
+
+        .bulk-button.danger {
+            background: #FEF3F2;
+            color: #D92D20;
+        }
+
+        .bulk-button.danger:hover {
+            background: #FEE4E2;
+        }
+
+        .bulk-button:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
+
+        /* 테이블 */
+        .member-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #FFFFFF;
+        }
+
+        .member-table {
+            width: 100%;
+            min-width: 1160px;
+            border-collapse: collapse;
+            white-space: nowrap;
+        }
+
+        .member-table th,
+        .member-table td {
+            padding: 13px 11px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .member-table th {
+            background: #F8FAFC;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .member-table td {
+            color: var(--text-main);
+            font-size: 14px;
+        }
+
+        .member-table tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .member-table tbody tr:hover {
+            background: #FAFBFD;
+        }
+
+        .member-table tbody tr.selected {
+            background: #F5F3FF;
+        }
+
+        .member-table input[type="checkbox"],
+        .select-all-label input[type="checkbox"] {
+            width: 14px;
+            height: 14px;
+            min-width: 14px;
+            min-height: 14px;
+            margin: 0;
+            padding: 0;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .member-table th:first-child,
+        .member-table td:first-child {
+            width: 42px;
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+
+        .sortable {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .sortable:hover {
+            color: var(--primary);
+        }
+
+        .sort-icon {
+            margin-left: 3px;
+            color: #98A2B3;
+            font-size: 11px;
+        }
+
+        /* 상태 */
+        .member-status {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .member-status.signed {
+            background: #ECFDF3;
+            color: #027A48;
+        }
+
+        .member-status.pending {
+            background: #FFF7ED;
+            color: #C2410C;
+        }
+
+        .signed-at {
+            display: block;
+            margin-top: 3px;
+            color: #98A2B3;
+            font-size: 11px;
+        }
+
+        .member-table-actions {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .member-table-actions button,
+        .member-table-actions a {
+            width: auto;
+            height: 34px;
+            margin: 0;
+            padding: 0 10px;
+            border: 0;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .member-edit {
+            background: #EEF4FF;
+            color: #3155E7;
+        }
+
+        .member-edit:hover {
+            background: #E0EAFF;
+        }
+
+        .member-delete {
+            background: #FEF3F2;
+            color: #D92D20;
+        }
+
+        .member-delete:hover {
+            background: #FEE4E2;
+        }
+
+        .member-download {
+            background: #EEF4FF;
+            color: #3155E7;
+        }
+
+        .member-download:hover {
+            background: #E0EAFF;
+        }
+
+        .signature-view {
+            background: #F2F4F7;
+            color: #475467;
+        }
+
+        .signature-view:hover {
+            background: #E4E7EC;
+        }
+
+        .member-empty {
+            padding: 54px 20px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .member-empty strong {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-main);
+            font-size: 16px;
+        }
+
+        .member-flash {
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            border-radius: 10px;
+            background: #EEF4FF;
+            color: #3155E7;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* 서명 미리보기 모달 */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(15, 23, 42, .58);
+        }
+
+        .modal-backdrop.show {
+            display: flex;
+        }
+
+        .signature-modal {
+            width: min(560px, 100%);
+            max-height: 90vh;
+            overflow: auto;
+            padding: 24px;
+            border-radius: 18px;
+            background: #FFFFFF;
+            box-shadow: 0 24px 70px rgba(0,0,0,.20);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 19px;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            margin: 0;
+            padding: 0;
+            border-radius: 9px;
+            background: #F2F4F7;
+            color: #475467;
+        }
+
+        .signature-preview-box {
+            min-height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: #FAFAFA;
+        }
+
+        .signature-preview-box img {
+            max-width: 100%;
+            max-height: 350px;
+            object-fit: contain;
+        }
+
+        .modal-meta {
+            margin-top: 14px;
+            color: var(--text-muted);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 18px;
+        }
+
+        .modal-actions a,
+        .modal-actions button {
+            width: auto;
+            margin: 0;
+        }
+
+        /* 토스트 */
+        .toast {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 10000;
+            max-width: 360px;
+            padding: 13px 16px;
+            border-radius: 11px;
+            background: #1F2937;
+            color: #FFFFFF;
+            font-size: 13px;
+            font-weight: 600;
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+            transition: .2s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 800px) {
+            .admin-container {
+                padding: 24px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+
+            .filter-row {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .member-form-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .member-list-header {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 12px;
+            }
+
+            .admin-container {
+                padding: 20px;
+                border-radius: 20px;
+            }
+
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .admin-tabs {
+                flex-direction: column;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-row {
+                flex-direction: column;
+            }
+
+            .filter-row {
+                grid-template-columns: 1fr;
+            }
+
+            .member-form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .upload-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .upload-row input[type="file"] {
+                max-width: none;
+                width: 100%;
+            }
+
+            .upload-row button,
+            .member-actions-row button {
+                width: 100%;
+            }
+
+            .member-actions-row {
+                flex-direction: column;
+            }
+
+            .bulk-toolbar.show {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .bulk-left,
+            .bulk-right {
+                width: 100%;
+            }
+
+            .bulk-button {
+                flex: 1;
+            }
+
+            .toast {
+                left: 14px;
+                right: 14px;
+                bottom: 14px;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="admin-container">
+
+    <!-- 기존 관리자 상단 디자인 유지 -->
+    <div class="admin-header">
+        <h2>관리자 패널</h2>
+
+        <a href="/" style="width: auto;">
+            <button
+                type="button"
+                class="btn-secondary btn-sm"
+                style="padding: 0 20px;"
+            >
+                메인으로 나가기
+            </button>
+        </a>
+    </div>
+
+    <div class="admin-tabs">
+        <a href="/admin_panel" class="admin-tab">
+            웹페이지 관리
+        </a>
+
+        <a href="/admin_members" class="admin-tab active">
+            회원 관리
+        </a>
+    </div>
+
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="member-flash">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+
+    <!-- 회원 관리 메인 -->
+    <div class="section-box">
+
+        <div class="section-heading">
+            <h3>회원 관리</h3>
+            <p>
+                회원 정보를 등록하고 검색·필터링하며 서명 상태를 관리할 수 있습니다.
+            </p>
+        </div>
+
+
+        <!-- 통계 -->
+        <div class="stats-grid">
+
+            <div class="stat-card active" id="stat_all" onclick="setStatusFilter('all')">
+                <span class="stat-label">전체 회원</span>
+                <strong class="stat-value" id="stat_total">0</strong>
+            </div>
+
+            <div class="stat-card" id="stat_signed" onclick="setStatusFilter('signed')">
+                <span class="stat-label">서명 완료</span>
+                <strong class="stat-value" id="stat_signed_value">0</strong>
+            </div>
+
+            <div class="stat-card" id="stat_pending" onclick="setStatusFilter('pending')">
+                <span class="stat-label">미서명</span>
+                <strong class="stat-value" id="stat_pending_value">0</strong>
+            </div>
+
+        </div>
+
+
+        <!-- 검색 / 필터 -->
+        <div class="toolbar">
+
+            <div class="search-row">
+
+                <div class="search-box">
+                    <span>⌕</span>
+
+                    <input
+                        type="search"
+                        id="member_search"
+                        placeholder="이름, 학번, 전화번호, 학과로 검색"
+                        autocomplete="off"
+                    >
+
+                    <button
+                        type="button"
+                        class="clear-search"
+                        id="clear_search"
+                        onclick="clearSearch()"
+                        aria-label="검색어 지우기"
+                    >
+                        ×
+                    </button>
+                </div>
+
+            </div>
+
+
+            <div class="filter-row">
+
+                <select id="status_filter" onchange="applyFilters()">
+                    <option value="all">전체 회원</option>
+                    <option value="signed">서명 완료</option>
+                    <option value="pending">미서명</option>
+                </select>
+
+                <select id="department_filter" onchange="applyFilters()">
+                    <option value="all">전체 학과</option>
+                    {% set departments = [] %}
+                    {% for user in users %}
+                        {% if user[2] not in departments %}
+                            {% set _ = departments.append(user[2]) %}
+                            <option value="{{ user[2] }}">{{ user[2] }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+
+                <select id="grade_filter" onchange="applyFilters()">
+                    <option value="all">전체 학년</option>
+                    {% set grades = [] %}
+                    {% for user in users %}
+                        {% if user[3] not in grades %}
+                            {% set _ = grades.append(user[3]) %}
+                            <option value="{{ user[3] }}">{{ user[3] }}학년</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+
+                <select id="sort_filter" onchange="sortMembers()">
+                    <option value="default">정렬 기준</option>
+                    <option value="name-asc">이름순 ↑</option>
+                    <option value="name-desc">이름순 ↓</option>
+                    <option value="student-asc">학번순 ↑</option>
+                    <option value="student-desc">학번순 ↓</option>
+                    <option value="department-asc">학과순 ↑</option>
+                    <option value="department-desc">학과순 ↓</option>
+                    <option value="signed-desc">서명 여부순</option>
+                </select>
+
+            </div>
+
+            <div class="result-info">
+                <span id="result_text">전체 회원을 표시하고 있습니다.</span>
+                <span id="selection_text">0명 선택</span>
+            </div>
+
+        </div>
+
+
+        <!-- 회원 목록 -->
+        <div class="member-list-header">
+
+            <div>
+                <h4 style="font-size:17px;color:var(--navy);margin-bottom:6px;">
+                    회원 목록
+                </h4>
+
+                <p style="margin:0;color:var(--text-muted);font-size:13px;">
+                    회원을 선택하면 일괄 관리 기능을 사용할 수 있습니다.
+                </p>
+            </div>
+
+            <div class="member-count">
+                총 <span id="visible_count">0</span>명
+            </div>
+
+        </div>
+
+
+        <!-- 일괄 관리 -->
+        <div class="bulk-toolbar">
+
+            <div class="bulk-left">
+
+                <label class="select-all-label">
+                    <input
+                        type="checkbox"
+                        id="select_all"
+                        onchange="toggleSelectAll(this)"
+                    >
+                    현재 목록 전체 선택
+                </label>
+
+            </div>
+
+            <div class="bulk-right">
+
+                <button
+                    type="button"
+                    class="bulk-button"
+                    id="bulk_status_button"
+                    onclick="showSelectedStatus()"
+                    disabled
+                >
+                    ✓ 선택 회원 상태 확인
+                </button>
+
+                <button
+                    type="button"
+                    class="bulk-button"
+                    id="bulk_excel_button"
+                    onclick="exportExcel()"
+                >
+                    엑셀 내보내기
+                </button>
+
+                <button
+                    type="button"
+                    class="bulk-button"
+                    id="bulk_sign_button"
+                    onclick="exportSelectedSignatures()"
+                    disabled
+                >
+                    서명 일괄 내보내기
+                </button>
+
+                <button
+                    type="button"
+                    class="bulk-button danger"
+                    id="bulk_delete_button"
+                    onclick="deleteSelectedMembers()"
+                    disabled
+                >
+                    선택 회원 삭제
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="member-table-wrap">
+
+            <table class="member-table" id="member_table">
+
+                <thead>
+
+                    <tr>
+
+                        <th style="width:42px;">
+                            <input
+                                type="checkbox"
+                                id="header_select_all"
+                                onchange="toggleSelectAll(this)"
+                            >
+                        </th>
+
+                        <th
+                            class="sortable"
+                            onclick="setSort('name')"
+                        >
+                            이름 <span class="sort-icon" id="sort_name">↕</span>
+                        </th>
+
+                        <th
+                            class="sortable"
+                            onclick="setSort('department')"
+                        >
+                            학과 <span class="sort-icon" id="sort_department">↕</span>
+                        </th>
+
+                        <th>학년</th>
+
+                        <th
+                            class="sortable"
+                            onclick="setSort('student')"
+                        >
+                            학번 <span class="sort-icon" id="sort_student">↕</span>
+                        </th>
+
+                        <th>전화번호</th>
+
+                        <th>서명 상태</th>
+
+                        <th>서명 일시</th>
+
+                        <th>서명</th>
+
+                        <th>관리</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="member_tbody">
+
+                {% for user in users %}
+
+                    <tr
+                        class="member-row"
+                        data-id="{{ user[0] }}"
+                        data-name="{{ user[1]|lower }}"
+                        data-department="{{ user[2]|lower }}"
+                        data-grade="{{ user[3] }}"
+                        data-student="{{ user[4] }}"
+                        data-phone="{{ user[5] }}"
+                        data-signed="{{ 'signed' if user[7] == 1 else 'pending' }}"
+                        data-display-name="{{ user[1] }}"
+                        data-signature-url="{{ '/download/' ~ user[1] ~ '.png' }}"
+                    >
+
+                        <td>
+                            <input
+                                type="checkbox"
+                                class="member-checkbox"
+                                value="{{ user[0] }}"
+                                onchange="updateSelection()"
+                            >
+                        </td>
+
+                        <td>{{ user[1] }}</td>
+
+                        <td>{{ user[2] }}</td>
+
+                        <td>{{ user[3] }}</td>
+
+                        <td>{{ user[4] }}</td>
+
+                        <td>{{ user[5] }}</td>
+
+                        <td>
+                            {% if user[7] == 1 %}
+                                <span class="member-status signed">
+                                    ✓ 서명 완료
+                                </span>
+                            {% else %}
+                                <span class="member-status pending">
+                                    미서명
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if user[7] == 1 %}
+                                {% if user|length > 8 and user[8] %}
+                                    <span class="signed-at">
+                                        {{ user[8] }}
+                                    </span>
+                                {% else %}
+                                    <span class="signed-at">기록 없음</span>
+                                {% endif %}
+                            {% else %}
+                                <span style="color:#98A2B3;">-</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if user[7] == 1 %}
+
+                                <div class="member-table-actions">
+
+                                    <button
+                                        type="button"
+                                        class="signature-view"
+                                        onclick="openSignatureModal(
+                                            '{{ user[1]|e }}',
+                                            '{{ ('/download/' ~ user[1] ~ '.png')|e }}',
+                                            '{% if user|length > 8 and user[8] %}{{ user[8]|e }}{% else %}기록 없음{% endif %}'
+                                        )"
+                                    >
+                                        보기
+                                    </button>
+
+                                    <a
+                                        href="/download/{{ user[1] }}.png"
+                                        class="member-download"
+                                        download
+                                    >
+                                        저장
+                                    </a>
+
+                                </div>
+
+                            {% else %}
+                                <span style="color:#98A2B3;">-</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+
+                            <div class="member-table-actions">
+
+                                <button
+                                    type="button"
+                                    class="member-edit"
+                                    onclick="editUser(
+                                        '{{ user[0] }}',
+                                        '{{ user[1]|e }}',
+                                        '{{ user[2]|e }}',
+                                        '{{ user[3]|e }}',
+                                        '{{ user[4]|e }}',
+                                        '{{ user[5]|e }}',
+                                        '{{ user[6]|e }}'
+                                    )"
+                                >
+                                    편집
+                                </button>
+
+                                <form
+                                    action="/admin/delete_user/{{ user[0] }}"
+                                    method="POST"
+                                    style="margin:0;width:auto;"
+                                >
+
+                                    <button
+                                        type="submit"
+                                        class="member-delete"
+                                        onclick="return confirm('정말 {{ user[1] }}님의 회원 정보를 삭제하시겠습니까?');"
+                                    >
+                                        삭제
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <div
+            class="member-empty"
+            id="no_results"
+            style="display:none;"
+        >
+            <strong>조건에 맞는 회원이 없습니다.</strong>
+            검색어나 필터 조건을 변경해보세요.
+        </div>
+
+    </div>
+
+
+    <!-- 회원 추가/수정 -->
+    <div class="section-box">
+
+        <div class="member-group" style="padding-top:0;border-top:0;">
+
+            <h4 id="form_title">신규 회원 추가</h4>
+
+            <p class="member-description">
+                회원 정보를 직접 추가하거나 기존 회원 정보를 수정합니다.
+            </p>
+
+            <form
+                id="user_form"
+                action="/admin/add_user"
+                method="POST"
+                onsubmit="return validateMemberForm()"
+            >
+
+                <div class="member-form-grid">
+
+                    <div class="member-field">
+                        <label for="name">이름 *</label>
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            placeholder="홍길동"
+                            required
+                        >
+                    </div>
+
+                    <div class="member-field">
+                        <label for="department">학과 *</label>
+                        <input
+                            type="text"
+                            id="department"
+                            name="department"
+                            placeholder="컴퓨터교육과"
+                            required
+                        >
+                    </div>
+
+                    <div class="member-field">
+                        <label for="grade">학년 *</label>
+                        <input
+                            type="text"
+                            id="grade"
+                            name="grade"
+                            placeholder="3"
+                            required
+                        >
+                    </div>
+
+                    <div class="member-field">
+                        <label for="student_id">학번 *</label>
+                        <input
+                            type="text"
+                            id="student_id"
+                            name="student_id"
+                            placeholder="20240000"
+                            required
+                        >
+                    </div>
+
+                    <div class="member-field">
+                        <label for="phone">전화번호 *</label>
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            placeholder="010-0000-0000"
+                            maxlength="13"
+                            required
+                        >
+                        <div class="field-help">
+                            숫자만 입력해도 자동으로 하이픈이 입력됩니다.
+                        </div>
+                    </div>
+
+                    <div class="member-field">
+                        <label for="phone_last4">암호 (전화번호 뒷 4자리) *</label>
+                        <input
+                            type="tel"
+                            id="phone_last4"
+                            name="phone_last4"
+                            maxlength="4"
+                            placeholder="0000"
+                            inputmode="numeric"
+                            required
+                        >
+                    </div>
+
+                </div>
+
+                <div class="member-actions-row">
+
+                    <button
+                        type="button"
+                        id="cancel_button"
+                        class="btn-secondary"
+                        style="display:none;"
+                        onclick="cancelEdit()"
+                    >
+                        수정 취소
+                    </button>
+
+                    <button
+                        type="submit"
+                        id="submit_button"
+                    >
+                        신규 회원 추가
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- 엑셀 -->
+    <div class="section-box">
+
+        <div class="member-group" style="padding-top:0;border-top:0;">
+
+            <h4>회원 일괄 등록</h4>
+
+            <p class="member-description">
+                기존 엑셀 업로드 기능입니다. 현재 등록된 회원은 유지됩니다.
+            </p>
+
+            <form
+                action="/admin/upload_excel"
+                method="POST"
+                enctype="multipart/form-data"
+            >
+
+                <div class="upload-row">
+
+                    <input
+                        type="file"
+                        name="file"
+                        accept=".xlsx,.xls"
+                        required
+                    >
+
+                    <button type="submit">
+                        엑셀 업로드
+                    </button>
+
+                </div>
+
+            </form>
+
+            <p class="member-helper">
+                ※ 엑셀 1행에는 이름, 학과, 학년, 학번, 전화번호, 암호 열을 사용하세요.
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- 서명 미리보기 -->
+<div
+    class="modal-backdrop"
+    id="signature_modal"
+    onclick="closeSignatureModal(event)"
+>
+
+    <div
+        class="signature-modal"
+        onclick="event.stopPropagation()"
+    >
+
+        <div class="modal-header">
+
+            <h3 id="modal_title">
+                서명 확인
+            </h3>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="closeSignatureModal()"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <div class="signature-preview-box">
+
+            <img
+                id="modal_signature_image"
+                src=""
+                alt="서명 이미지"
+            >
+
+        </div>
+
+        <div class="modal-meta">
+            <div>
+                회원: <strong id="modal_member_name">-</strong>
+            </div>
+
+            <div>
+                서명 일시: <strong id="modal_signed_at">-</strong>
+            </div>
+        </div>
+
+        <div class="modal-actions">
+
+            <a
+                href="#"
+                id="modal_download"
+                class="btn-secondary"
+                download
+            >
+                서명 다운로드
+            </a>
+
+            <button
+                type="button"
+                class="btn-secondary"
+                onclick="closeSignatureModal()"
+            >
+                닫기
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="toast" id="toast"></div>
+
+
+<script>
+    let currentSort = {
+        field: null,
+        direction: 'asc'
+    };
+
+    let currentStatusFilter = 'all';
+
+
+    function getRows() {
+        return Array.from(
+            document.querySelectorAll('#member_tbody .member-row')
+        );
+    }
+
+
+    function normalize(value) {
+        return String(value || '')
+            .toLowerCase()
+            .replace(/[\-\s]/g, '');
+    }
+
+
+    function applyFilters() {
+
+        const search = normalize(
+            document.getElementById('member_search').value
+        );
+
+        const status =
+            document.getElementById('status_filter').value;
+
+        const department =
+            document.getElementById('department_filter').value;
+
+        const grade =
+            document.getElementById('grade_filter').value;
+
+        currentStatusFilter = status;
+
+        let visible = 0;
+
+        getRows().forEach(row => {
+
+            const matchesSearch =
+                !search ||
+                normalize(row.dataset.name).includes(search) ||
+                normalize(row.dataset.student).includes(search) ||
+                normalize(row.dataset.phone).includes(search) ||
+                normalize(row.dataset.department).includes(search);
+
+            const matchesStatus =
+                status === 'all' ||
+                row.dataset.signed === status;
+
+            const matchesDepartment =
+                department === 'all' ||
+                row.dataset.department === normalize(department);
+
+            const matchesGrade =
+                grade === 'all' ||
+                row.dataset.grade === grade;
+
+            const show =
+                matchesSearch &&
+                matchesStatus &&
+                matchesDepartment &&
+                matchesGrade;
+
+            row.style.display = show ? '' : 'none';
+
+            // 필터로 숨겨진 회원은 선택 상태를 유지하지 않도록 정리
+            if (!show) {
+                const checkbox = row.querySelector('.member-checkbox');
+                if (checkbox) checkbox.checked = false;
+                row.classList.remove('selected');
+            }
+
+            if (show) visible++;
+        });
+
+        document.getElementById('visible_count').innerText = visible;
+
+        document.getElementById('no_results').style.display =
+            visible === 0 ? 'block' : 'none';
+
+        document.getElementById('result_text').innerText =
+            visible === getRows().length
+                ? '전체 회원을 표시하고 있습니다.'
+                : `${visible}명의 회원을 표시하고 있습니다.`;
+
+        updateSelection();
+        updateStatActive();
+    }
+
+
+    function setStatusFilter(status) {
+
+        document.getElementById('status_filter').value = status;
+
+        currentStatusFilter = status;
+
+        applyFilters();
+    }
+
+
+    function updateStatActive() {
+
+        ['all', 'signed', 'pending'].forEach(type => {
+            const el = document.getElementById(
+                type === 'all'
+                    ? 'stat_all'
+                    : `stat_${type}`
+            );
+
+            if (el) {
+                el.classList.toggle(
+                    'active',
+                    currentStatusFilter === type
+                );
+            }
+        });
+    }
+
+
+    function clearSearch() {
+
+        document.getElementById('member_search').value = '';
+
+        applyFilters();
+
+        document.getElementById('member_search').focus();
+    }
+
+
+    function toggleSelectAll(source) {
+
+        const checked = source.checked;
+
+        getRows().forEach(row => {
+
+            if (row.style.display === 'none') return;
+
+            const checkbox =
+                row.querySelector('.member-checkbox');
+
+            checkbox.checked = checked;
+
+            row.classList.toggle('selected', checked);
+        });
+
+        document.getElementById('select_all').checked = checked;
+        document.getElementById('header_select_all').checked = checked;
+
+        updateSelection();
+    }
+
+
+    function updateSelection() {
+
+        const visibleRows =
+            getRows().filter(row => row.style.display !== 'none');
+
+        const selectedRows =
+            getRows().filter(row =>
+                row.querySelector('.member-checkbox').checked
+            );
+
+        getRows().forEach(row => {
+            row.classList.toggle(
+                'selected',
+                row.querySelector('.member-checkbox').checked
+            );
+        });
+
+        const selectedCount = selectedRows.length;
+
+        const bulkToolbar = document.querySelector('.bulk-toolbar');
+        if (bulkToolbar) {
+            bulkToolbar.classList.toggle('show', selectedCount > 0);
+        }
+
+        document.getElementById('selection_text').innerText =
+            `${selectedCount}명 선택`;
+
+        document.getElementById('bulk_status_button').disabled =
+            selectedCount === 0;
+
+        document.getElementById('bulk_sign_button').disabled =
+            selectedCount === 0;
+
+        document.getElementById('bulk_delete_button').disabled =
+            selectedCount === 0;
+
+        const allVisibleSelected =
+            visibleRows.length > 0 &&
+            visibleRows.every(row =>
+                row.querySelector('.member-checkbox').checked
+            );
+
+        document.getElementById('select_all').checked =
+            allVisibleSelected;
+
+        document.getElementById('header_select_all').checked =
+            allVisibleSelected;
+    }
+
+
+    function getSelectedRows() {
+
+        return getRows().filter(row =>
+            row.querySelector('.member-checkbox').checked
+        );
+    }
+
+
+    function showSelectedStatus() {
+
+        const rows = getSelectedRows();
+
+        if (!rows.length) {
+            showToast('회원부터 선택해주세요.');
+            return;
+        }
+
+        const signed =
+            rows.filter(row =>
+                row.dataset.signed === 'signed'
+            ).length;
+
+        const pending = rows.length - signed;
+
+        alert(
+            `선택한 회원 ${rows.length}명\\n\\n` +
+            `✓ 서명 완료: ${signed}명\\n` +
+            `미서명: ${pending}명`
+        );
+    }
+
+
+    function setSort(field) {
+
+        let direction = 'asc';
+
+        if (currentSort.field === field) {
+            direction =
+                currentSort.direction === 'asc'
+                    ? 'desc'
+                    : 'asc';
+        }
+
+        currentSort = {
+            field,
+            direction
+        };
+
+        const rows = getRows();
+
+        rows.sort((a, b) => {
+
+            let av;
+            let bv;
+
+            if (field === 'name') {
+                av = a.dataset.name;
+                bv = b.dataset.name;
+            } else if (field === 'department') {
+                av = a.dataset.department;
+                bv = b.dataset.department;
+            } else {
+                av = a.dataset.student;
+                bv = b.dataset.student;
+            }
+
+            const result =
+                av.localeCompare(
+                    bv,
+                    'ko',
+                    {
+                        numeric: true,
+                        sensitivity: 'base'
+                    }
+                );
+
+            return direction === 'asc'
+                ? result
+                : -result;
+        });
+
+        const tbody =
+            document.getElementById('member_tbody');
+
+        rows.forEach(row => tbody.appendChild(row));
+
+        updateSortIndicators();
+        applyFilters();
+    }
+
+
+    function sortMembers() {
+
+        const value =
+            document.getElementById('sort_filter').value;
+
+        if (value === 'default') {
+            location.reload();
+            return;
+        }
+
+        if (value === 'signed-desc') {
+
+            const rows = getRows();
+
+            rows.sort((a, b) =>
+                a.dataset.signed === b.dataset.signed
+                    ? 0
+                    : a.dataset.signed === 'signed'
+                        ? -1
+                        : 1
+            );
+
+            const tbody =
+                document.getElementById('member_tbody');
+
+            rows.forEach(row => tbody.appendChild(row));
+
+            applyFilters();
+            return;
+        }
+
+        const [field, direction] =
+            value.split('-');
+
+        const rows = getRows();
+
+        rows.sort((a, b) => {
+
+            let av;
+            let bv;
+
+            if (field === 'name') {
+                av = a.dataset.name;
+                bv = b.dataset.name;
+            } else if (field === 'student') {
+                av = a.dataset.student;
+                bv = b.dataset.student;
+            } else {
+                av = a.dataset.department;
+                bv = b.dataset.department;
+            }
+
+            const result =
+                av.localeCompare(
+                    bv,
+                    'ko',
+                    {
+                        numeric: true,
+                        sensitivity: 'base'
+                    }
+                );
+
+            return direction === 'asc'
+                ? result
+                : -result;
+        });
+
+        const tbody =
+            document.getElementById('member_tbody');
+
+        rows.forEach(row => tbody.appendChild(row));
+
+        applyFilters();
+    }
+
+
+    function updateSortIndicators() {
+
+        ['name', 'department', 'student'].forEach(field => {
+
+            const el =
+                document.getElementById(`sort_${field}`);
+
+            if (!el) return;
+
+            if (currentSort.field !== field) {
+                el.innerText = '↕';
+                return;
+            }
+
+            el.innerText =
+                currentSort.direction === 'asc'
+                    ? '↑'
+                    : '↓';
+        });
+    }
+
+
+    async function deleteSelectedMembers() {
+
+        const rows = getSelectedRows();
+
+        if (!rows.length) {
+            showToast('삭제할 회원을 선택해주세요.');
+            return;
+        }
+
+        const names =
+            rows.map(row =>
+                row.dataset.displayName
+            );
+
+        if (
+            !confirm(
+                `선택한 ${rows.length}명의 회원을 삭제하시겠습니까?\\n\\n` +
+                names.slice(0, 8).join(', ') +
+                (names.length > 8
+                    ? ` 외 ${names.length - 8}명`
+                    : '')
+            )
+        ) {
+            return;
+        }
+
+        try {
+
+            for (const row of rows) {
+
+                const response =
+                    await fetch(
+                        `/admin/delete_user/${row.dataset.id}`,
+                        {
+                            method: 'POST'
+                        }
+                    );
+
+                if (!response.ok) {
+                    throw new Error(
+                        `${row.dataset.displayName} 삭제 실패`
+                    );
+                }
+            }
+
+            location.reload();
+
+        } catch (error) {
+
+            alert(
+                '일괄 삭제 중 문제가 발생했습니다.\\n' +
+                error.message
+            );
+        }
+    }
+
+
+    function exportExcel() {
+
+        const rows =
+            getRows().filter(row =>
+                row.style.display !== 'none'
+            );
+
+        if (!rows.length) {
+            showToast('내보낼 회원이 없습니다.');
+            return;
+        }
+
+        const data = [
+            [
+                '이름',
+                '학과',
+                '학년',
+                '학번',
+                '전화번호',
+                '서명 상태',
+                '서명 일시'
+            ]
+        ];
+
+        rows.forEach(row => {
+
+            const cells = row.querySelectorAll('td');
+
+            data.push([
+                cells[1].innerText.trim(),
+                cells[2].innerText.trim(),
+                cells[3].innerText.trim(),
+                cells[4].innerText.trim(),
+                cells[5].innerText.trim(),
+                row.dataset.signed === 'signed'
+                    ? '서명 완료'
+                    : '미서명',
+                cells[7].innerText.trim()
+            ]);
+        });
+
+        const worksheet =
+            XLSX.utils.aoa_to_sheet(data);
+
+        const workbook =
+            XLSX.utils.book_new();
+
+        XLSX.utils.book_append_sheet(
+            workbook,
+            worksheet,
+            '회원 목록'
+        );
+
+        XLSX.writeFile(
+            workbook,
+            `뉴맨_회원목록_${getTodayString()}.xlsx`
+        );
+
+        showToast('엑셀 파일을 생성했습니다.');
+    }
+
+
+    async function exportSelectedSignatures() {
+
+        const rows = getSelectedRows();
+
+        if (!rows.length) {
+            showToast('서명을 내보낼 회원을 선택해주세요.');
+            return;
+        }
+
+        const signedRows =
+            rows.filter(row =>
+                row.dataset.signed === 'signed'
+            );
+
+        if (!signedRows.length) {
+            showToast('선택한 회원 중 서명 완료 회원이 없습니다.');
+            return;
+        }
+
+        if (
+            !confirm(
+                `선택한 회원 중 서명 완료 ${signedRows.length}명의 서명을 ZIP 파일로 내보내시겠습니까?`
+            )
+        ) {
+            return;
+        }
+
+        const zip = new JSZip();
+
+        let success = 0;
+
+        for (const row of signedRows) {
+
+            try {
+
+                const response =
+                    await fetch(row.dataset.signatureUrl);
+
+                if (!response.ok) continue;
+
+                const blob =
+                    await response.blob();
+
+                const name =
+                    sanitizeFileName(
+                        row.dataset.displayName
+                    );
+
+                zip.file(
+                    `${name}.png`,
+                    blob
+                );
+
+                success++;
+
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        if (!success) {
+            showToast('서명 파일을 가져오지 못했습니다.');
+            return;
+        }
+
+        const blob =
+            await zip.generateAsync({
+                type: 'blob'
+            });
+
+        const url =
+            URL.createObjectURL(blob);
+
+        const a =
+            document.createElement('a');
+
+        a.href = url;
+        a.download =
+            `뉴맨_서명파일_${getTodayString()}.zip`;
+
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        URL.revokeObjectURL(url);
+
+        showToast(`${success}명의 서명 파일을 내보냈습니다.`);
+    }
+
+
+    function openSignatureModal(
+        name,
+        url,
+        signedAt
+    ) {
+
+        document.getElementById(
+            'modal_member_name'
+        ).innerText = name;
+
+        document.getElementById(
+            'modal_signed_at'
+        ).innerText = signedAt;
+
+        document.getElementById(
+            'modal_signature_image'
+        ).src = url;
+
+        document.getElementById(
+            'modal_download'
+        ).href = url;
+
+        document.getElementById(
+            'signature_modal'
+        ).classList.add('show');
+    }
+
+
+    function closeSignatureModal(event) {
+
+        if (
+            event &&
+            event.target !==
+            document.getElementById('signature_modal')
+        ) {
+            return;
+        }
+
+        document.getElementById(
+            'signature_modal'
+        ).classList.remove('show');
+
+        document.getElementById(
+            'modal_signature_image'
+        ).src = '';
+    }
+
+
+    function validateMemberForm() {
+
+        const phone =
+            document.getElementById('phone').value;
+
+        const last4 =
+            document.getElementById('phone_last4').value;
+
+        const digits =
+            phone.replace(/[^0-9]/g, '');
+
+        if (digits.length !== 10 &&
+            digits.length !== 11) {
+
+            alert(
+                '전화번호를 올바르게 입력해주세요.'
+            );
+
+            document.getElementById('phone').focus();
+
+            return false;
+        }
+
+        const cleanLast4 =
+            last4.replace(/[^0-9]/g, '');
+
+        if (cleanLast4.length !== 4) {
+
+            alert(
+                '전화번호 뒷자리 4자리를 입력해주세요.'
+            );
+
+            document.getElementById('phone_last4').focus();
+
+            return false;
+        }
+
+        return true;
+    }
+
+
+    function formatPhone(value) {
+
+        let digits =
+            value.replace(/[^0-9]/g, '');
+
+        if (digits.length > 11) {
+            digits = digits.substring(0, 11);
+        }
+
+        if (digits.length <= 3) {
+            return digits;
+        }
+
+        if (digits.length <= 7) {
+            return (
+                digits.substring(0, 3) +
+                '-' +
+                digits.substring(3)
+            );
+        }
+
+        return (
+            digits.substring(0, 3) +
+            '-' +
+            digits.substring(3, 7) +
+            '-' +
+            digits.substring(7)
+        );
+    }
+
+    function editUser(
+        userId,
+        name,
+        department,
+        grade,
+        studentId,
+        phone,
+        phoneLast4
+    ) {
+
+        document.getElementById('name').value = name;
+        document.getElementById('department').value = department;
+        document.getElementById('grade').value = grade;
+        document.getElementById('student_id').value = studentId;
+        document.getElementById('phone').value = phone;
+        document.getElementById('phone_last4').value = phoneLast4;
+
+        const form =
+            document.getElementById('user_form');
+
+        form.action =
+            '/admin/update_user';
+
+        document.getElementById(
+            'submit_button'
+        ).innerText =
+            '회원 정보 수정 완료';
+
+        document.getElementById(
+            'cancel_button'
+        ).style.display =
+            'inline-flex';
+
+        document.getElementById(
+            'form_title'
+        ).innerText =
+            '회원 정보 수정';
+
+        const oldId =
+            form.querySelector('input[name="id"]');
+
+        if (oldId) oldId.remove();
+
+        const hiddenId =
+            document.createElement('input');
+
+        hiddenId.type = 'hidden';
+        hiddenId.name = 'id';
+        hiddenId.value = userId;
+
+        form.appendChild(hiddenId);
+
+        form.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+    }
+
+
+    function cancelEdit() {
+
+        const form =
+            document.getElementById('user_form');
+
+        form.reset();
+
+        form.action =
+            '/admin/add_user';
+
+        document.getElementById(
+            'submit_button'
+        ).innerText =
+            '신규 회원 추가';
+
+        document.getElementById(
+            'cancel_button'
+        ).style.display =
+            'none';
+
+        document.getElementById(
+            'form_title'
+        ).innerText =
+            '신규 회원 추가';
+
+        const hiddenId =
+            form.querySelector('input[name="id"]');
+
+        if (hiddenId) hiddenId.remove();
+    }
+
+
+    function sanitizeFileName(name) {
+
+        return name
+            .replace(/[\\\\/:*?"<>|]/g, '_')
+            .trim() || 'signature';
+    }
+
+
+    function getTodayString() {
+
+        const now = new Date();
+
+        const y =
+            now.getFullYear();
+
+        const m =
+            String(now.getMonth() + 1)
+                .padStart(2, '0');
+
+        const d =
+            String(now.getDate())
+                .padStart(2, '0');
+
+        return `${y}${m}${d}`;
+    }
+
+
+    function showToast(message) {
+
+        const toast =
+            document.getElementById('toast');
+
+        toast.innerText = message;
+        toast.classList.add('show');
+
+        clearTimeout(
+            window.__toastTimer
+        );
+
+        window.__toastTimer =
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2200);
+    }
+
+
+    document.addEventListener(
+        'DOMContentLoaded',
+        function () {
+
+            const search =
+                document.getElementById('member_search');
+
+            const phone =
+                document.getElementById('phone');
+
+            const last4 =
+                document.getElementById('phone_last4');
+
+            search.addEventListener(
+                'input',
+                applyFilters
+            );
+
+            phone.addEventListener(
+                'input',
+                function (event) {
+
+                    event.target.value =
+                        formatPhone(
+                            event.target.value
+                        );
+                }
+            );
+
+            last4.addEventListener(
+                'input',
+                function (event) {
+                    event.target.value =
+                        event.target.value
+                            .replace(/[^0-9]/g, '')
+                            .substring(0, 4);
+                }
+            );
+
+            document.addEventListener(
+                'keydown',
+                function (event) {
+
+                    if (event.key === 'Escape') {
+                        closeSignatureModal();
+                    }
+                }
+            );
+
+            // 초기 통계
+            const rows = getRows();
+
+            const total = rows.length;
+
+            const signed =
+                rows.filter(
+                    row =>
+                        row.dataset.signed === 'signed'
+                ).length;
+
+            const pending =
+                total - signed;
+
+            document.getElementById(
+                'stat_total'
+            ).innerText = total;
+
+            document.getElementById(
+                'stat_signed_value'
+            ).innerText = signed;
+
+            document.getElementById(
+                'stat_pending_value'
+            ).innerText = pending;
+
+            applyFilters();
+        }
+    );
+</script>
+
+</body>
+</html>
