@@ -6,12 +6,15 @@ import base64
 import io
 from pathlib import Path
 from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
 from PIL import Image
 import pandas as pd
 from datetime import datetime
 from zoneinfo import ZoneInfo
+from functools import wraps
 
 BASE_DIR = Path(__file__).resolve().parent
+load_dotenv(BASE_DIR / ".env")
 CONFIG_FILE = BASE_DIR / "site_config.json"
 SIGNATURE_DIR = BASE_DIR / "signatures"
 UPLOAD_DIR = BASE_DIR / "static" / "uploads"
@@ -20,7 +23,31 @@ SIGNATURE_DIR.mkdir(exist_ok=True)
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "change-this-secret-key")
+
+# .env에서 비밀값을 읽습니다.
+# SECRET_KEY는 세션 암호화에 사용되므로 반드시 설정해야 합니다.
+SECRET_KEY = os.environ.get("SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError(
+        ".env 파일에 SECRET_KEY가 설정되지 않았습니다."
+    )
+
+app.secret_key = SECRET_KEY
+
+# 관리자 비밀번호도 .env에서만 읽습니다.
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD")
+if not ADMIN_PASSWORD:
+    raise RuntimeError(
+        ".env 파일에 ADMIN_PASSWORD가 설정되지 않았습니다."
+    )
+
+# 운영 환경에서 사용하는 세션 쿠키 보안 설정
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=os.environ.get("SESSION_COOKIE_SECURE", "1") == "1",
+    SESSION_REFRESH_EACH_REQUEST=True,
+)
 
 ALLOWED_LOGO_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 
@@ -61,8 +88,16 @@ def inject_site_config():
     return {"site": load_config()}
 
 
-def admin_required():
-    return session.get("admin") is True
+def admin_required(view_func):
+    """관리자 인증이 없으면 관리자 로그인 화면으로 보냅니다."""
+    @wraps(view_func)
+    def wrapped_view(*args, **kwargs):
+        if session.get("admin") is not True:
+            session.pop("admin", None)
+            return redirect("/admin")
+        return view_func(*args, **kwargs)
+
+    return wrapped_view
 
 
 def ensure_signed_at_column():
@@ -163,11 +198,13 @@ def admin_login():
 
 @app.route("/admin_login", methods=["POST"])
 def admin_login_post():
-    password = request.form["password"]
-    admin_password = os.environ.get("ADMIN_PASSWORD", "admin123")
+    password = request.form.get("password", "")
 
-    if password == admin_password:
+    if password == ADMIN_PASSWORD:
+        # 기존 세션을 폐기하고 관리자 세션을 새로 발급합니다.
+        session.clear()
         session["admin"] = True
+        session.permanent = False
         return redirect("/admin_members")
 
     return render_template(
@@ -177,18 +214,14 @@ def admin_login_post():
 
 
 @app.route("/admin_panel")
+@admin_required
 def admin_panel():
-    if not admin_required():
-        return redirect("/admin")
-
     return render_template("admin_panel.html")
 
 
 @app.route("/admin_members")
+@admin_required
 def admin_members():
-    if not admin_required():
-        return redirect("/admin")
-
     conn = sqlite3.connect(BASE_DIR / "users.db")
     c = conn.cursor()
     c.execute("SELECT * FROM users")
@@ -203,10 +236,8 @@ def admin_members():
 # -------------------------
 
 @app.route("/admin/settings", methods=["POST"])
+@admin_required
 def update_settings():
-    if not admin_required():
-        return redirect("/admin")
-
     config = load_config()
 
     config["organization_name"] = request.form.get(
@@ -246,10 +277,8 @@ def update_settings():
 
 
 @app.route("/admin/settings/logo", methods=["POST"])
+@admin_required
 def update_logo():
-    if not admin_required():
-        return redirect("/admin")
-
     file = request.files.get("logo")
 
     if not file or not file.filename:
@@ -279,10 +308,8 @@ def update_logo():
 # -------------------------
 
 @app.route("/admin/add_user", methods=["POST"])
+@admin_required
 def add_user():
-    if not admin_required():
-        return redirect("/admin")
-
     name = request.form["name"]
     department = request.form["department"]
     grade = request.form["grade"]
@@ -308,10 +335,8 @@ def add_user():
 
 
 @app.route("/admin/delete_user/<int:user_id>", methods=["POST"])
+@admin_required
 def delete_user(user_id):
-    if not admin_required():
-        return redirect("/admin")
-
     conn = sqlite3.connect(BASE_DIR / "users.db")
     c = conn.cursor()
     c.execute("DELETE FROM users WHERE id=?", (user_id,))
@@ -355,10 +380,8 @@ def confirm_info():
 
 
 @app.route("/admin/update_user", methods=["POST"])
+@admin_required
 def update_user():
-    if not admin_required():
-        return redirect("/admin")
-
     user_id = request.form["id"]
     name = request.form["name"]
     department = request.form["department"]
@@ -385,10 +408,8 @@ def update_user():
 
 
 @app.route("/admin/upload_excel", methods=["POST"])
+@admin_required
 def upload_excel():
-    if not admin_required():
-        return redirect("/admin")
-
     file = request.files.get("file")
 
     if file and file.filename.endswith((".xlsx", ".xls")):
@@ -431,10 +452,8 @@ def upload_excel():
 
 
 @app.route("/download/<filename>")
+@admin_required
 def download_signature(filename):
-    if not admin_required():
-        return redirect("/")
-
     return send_from_directory(
         SIGNATURE_DIR,
         filename,
@@ -448,4 +467,4 @@ def thank_you():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    app.run(host="0.0.0.0", port=5070, debug=False)

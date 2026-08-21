@@ -14,4 +14,6 @@ env/
 
 signatures/
 
+#환경설정
 
+.env
