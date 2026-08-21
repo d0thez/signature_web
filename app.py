@@ -68,7 +68,6 @@ def load_config():
             "completion_title": "회원 명부에 서명되었습니다!",
             "completion_message": "서명해 주셔서 감사합니다 😊",
             "slogan": "언제나 당신의 곁에서, NEWMAN",
-            "developer": "Developed by Stephen Kim",
             "logo": "newman_logo.jpg",
             "copyright": "All rights reserved."
         }
@@ -266,9 +265,6 @@ def update_settings():
     ).strip()
     config["slogan"] = request.form.get(
         "slogan", config["slogan"]
-    ).strip()
-    config["developer"] = request.form.get(
-        "developer", config["developer"]
     ).strip()
 
     save_config(config)
